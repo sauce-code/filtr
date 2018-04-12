@@ -261,7 +261,6 @@ public class MainWindow extends Application {
 		primaryStage.setScene(scene);
 		primaryStage.setWidth(1200.0);
 		primaryStage.setHeight(800.0);
-		// primaryStage.setResizable(false);
 		primaryStage.getIcons().add(logo);
 
 		new com.sun.glass.ui.ClipboardAssistance(
