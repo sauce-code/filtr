@@ -10,6 +10,8 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -17,6 +19,8 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
@@ -44,13 +48,19 @@ public class MainWindow extends Application {
 
 	private MenuItem redo;
 
-	private BufferedImage image;
+	private Image image;
 
 	private Stage primaryStage;
 
 	private ImageView imageView;
 
 	private MenuItem saveAs;
+	
+	private MenuItem copy;
+	
+	private MenuItem paste;
+	
+	private Clipboard clipboard = Clipboard.getSystemClipboard();
 
 	/**
 	 * Initializes the menu bar and returns it.
@@ -86,7 +96,32 @@ public class MainWindow extends Application {
 		});
 		redo.setDisable(true);
 
-		Menu menuEdit = new Menu("_Edit", null, undo, redo);
+		copy = new MenuItem("_Copy", null);
+		copy.setAccelerator(KeyCombination.keyCombination("Ctrl + C"));
+		copy.setOnAction(e -> {
+			ClipboardContent content = new ClipboardContent();
+			content.putImage(image);
+			clipboard.setContent(content);
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setHeaderText(null);
+			alert.setContentText("Image has been copied to clipboard.");
+			alert.showAndWait();
+		});
+		copy.setDisable(true);
+
+		paste = new MenuItem("_Paste", null);
+		paste.setAccelerator(KeyCombination.keyCombination("Ctrl + V"));
+		paste.setOnAction(e -> {
+			if (clipboard.hasImage()) {
+				image = clipboard.getImage();
+				imageView.setImage(image);
+				copy.setDisable(false);
+			}
+		});
+		paste.setDisable(!clipboard.hasImage());
+
+		Menu menuEdit = new Menu("_Edit", null, undo, redo,
+				new SeparatorMenuItem(), copy, paste);
 
 		// =========================================================================================
 		// ======= FILE MENU
@@ -96,18 +131,25 @@ public class MainWindow extends Application {
 		open.setAccelerator(KeyCombination.keyCombination("Ctrl + O"));
 		open.setOnAction(e -> {
 			FileChooser fc = new FileChooser();
-
+			fc.getExtensionFilters().addAll(
+					new FileChooser.ExtensionFilter("All Images", "*.*"),
+					new FileChooser.ExtensionFilter("JPG", "*.jpg"),
+					new FileChooser.ExtensionFilter("GIF", "*.gif"),
+					new FileChooser.ExtensionFilter("BMP", "*.bmp"),
+					new FileChooser.ExtensionFilter("PNG", "*.png"));
 			// fc.setInitialDirectory(new File(System.getProperty("user.dir")));
 			try {
 				File input = fc.showOpenDialog(primaryStage);
 				if (input != null) {
-					image = ImageIO.read(input);
-					if (image == null) {
+					BufferedImage temp = ImageIO.read(input);
+					if (temp == null) {
 						new ErrorAlert("The selected file is no valid image!")
 								.showAndWait();
 					} else {
-						imageView.setImage(SwingFXUtils.toFXImage(image, null));
+						image = SwingFXUtils.toFXImage(temp, null);
+						imageView.setImage(image);
 						saveAs.setDisable(false);
+						copy.setDisable(false);
 					}
 				}
 			} catch (IOException ex) {
@@ -123,7 +165,8 @@ public class MainWindow extends Application {
 			File outputfile = fc.showSaveDialog(primaryStage);
 			if (outputfile != null) {
 				try {
-					ImageIO.write(image, "png", outputfile);
+					BufferedImage temp = SwingFXUtils.fromFXImage(image, null);
+					ImageIO.write(temp, "png", outputfile);
 				} catch (IOException ex) {
 					new ErrorAlert(ex.getMessage()).showAndWait();
 				}
@@ -167,6 +210,13 @@ public class MainWindow extends Application {
 		primaryStage.setHeight(800.0);
 		// primaryStage.setResizable(false);
 		primaryStage.getIcons().add(logo);
+		
+        new com.sun.glass.ui.ClipboardAssistance(com.sun.glass.ui.Clipboard.SYSTEM) {
+            @Override
+            public void contentChanged() {
+                paste.setDisable(!clipboard.hasImage());
+            }
+        };
 
 		primaryStage.show();
 	}
