@@ -8,10 +8,13 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import org.controlsfx.control.StatusBar;
+
 import com.saucecode.filtr.core.filters.BlurFilter;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -73,6 +76,8 @@ public class MainWindow extends Application {
 
 	private ImageView imageView;
 
+	private StatusBar statusBar;
+
 	private MenuItem saveAs;
 
 	private MenuItem copy;
@@ -81,7 +86,25 @@ public class MainWindow extends Application {
 
 	private Clipboard clipboard = Clipboard.getSystemClipboard();
 
-	private List<MenuItem> filters = new LinkedList<MenuItem>();
+	private List<MenuItem> filterMenuItems = new LinkedList<MenuItem>();
+
+	private List<MenuItem> taskMenuItems = new LinkedList<MenuItem>();
+
+	private boolean working = false;
+
+	private void refresh() {
+		if (working) {
+			taskMenuItems.forEach(e -> e.setDisable(true));
+			filterMenuItems.forEach(e -> e.setDisable(true));
+		} else {
+			taskMenuItems.forEach(e -> e.setDisable(false));
+			filterMenuItems.forEach(e -> e.setDisable(image == null));
+			saveAs.setDisable(image == null);
+			copy.setDisable(image == null);
+			paste.setDisable(clipboard.hasImage());
+		}
+
+	}
 
 	/**
 	 * Initializes the menu bar and returns it.
@@ -105,25 +128,40 @@ public class MainWindow extends Application {
 
 		BlurFilter blurFilter = new BlurFilter();
 		MenuItem filterBlur = new MenuItem(blurFilter.getName());
-		filterBlur.setOnAction(e -> {
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					Platform.runLater(new Runnable() {
-						@Override
-						public void run() {
-							image = blurFilter.filter(image);
-							imageView.setImage(image);
-						}
-					});
-				}
-			}).start();
+		statusBar.progressProperty().addListener(e -> {
+
 		});
-		filters.add(filterBlur);
+		filterBlur.setOnAction(e -> {
+			Task<Void> task = new Task<Void>() {
+				@Override
+				protected Void call() throws Exception {
+					working = true;
+					refresh();
+					while (true) {
+						System.out.println("sdasd");
+					}
+					// return null;
+				}
+			};
+			new Thread(task).start();
+			// new Thread(new Runnable() {
+			// @Override
+			// public void run() {
+			// Platform.runLater(new Runnable() {
+			// @Override
+			// public void run() {
+			// image = blurFilter.filter(image);
+			// imageView.setImage(image);
+			// }
+			// });
+			// }
+			// }).start();
+		});
+		filterMenuItems.add(filterBlur);
 
 		// TODO add other filters here
 
-		filters.forEach(e -> e.setDisable(true));
+		filterMenuItems.forEach(e -> e.setDisable(true));
 
 		Menu menuFilter = new Menu("_Filter", null, filterBlur);
 
@@ -137,6 +175,7 @@ public class MainWindow extends Application {
 			// TODO
 		});
 		undo.setDisable(true);
+		taskMenuItems.add(undo);
 
 		redo = new MenuItem("_Redo", new ImageView(iconRedo));
 		redo.setAccelerator(KeyCombination.keyCombination("Ctrl + Y"));
@@ -144,6 +183,7 @@ public class MainWindow extends Application {
 			// TODO
 		});
 		redo.setDisable(true);
+		taskMenuItems.add(redo);
 
 		copy = new MenuItem("_Copy", new ImageView(iconCopy));
 		copy.setAccelerator(KeyCombination.keyCombination("Ctrl + C"));
@@ -156,7 +196,7 @@ public class MainWindow extends Application {
 			alert.setContentText("Image has been copied to clipboard.");
 			alert.showAndWait();
 		});
-		copy.setDisable(true);
+		taskMenuItems.add(copy);
 
 		paste = new MenuItem("_Paste", new ImageView(iconPaste));
 		paste.setAccelerator(KeyCombination.keyCombination("Ctrl + V"));
@@ -164,12 +204,10 @@ public class MainWindow extends Application {
 			if (clipboard.hasImage()) {
 				image = clipboard.getImage();
 				imageView.setImage(image);
-				saveAs.setDisable(false);
-				copy.setDisable(false);
-				filters.forEach(t -> t.setDisable(false));
+				refresh();
 			}
 		});
-		paste.setDisable(!clipboard.hasImage());
+		taskMenuItems.add(paste);
 
 		Menu menuEdit = new Menu("_Edit", null, undo, redo,
 				new SeparatorMenuItem(), copy, paste);
@@ -199,15 +237,14 @@ public class MainWindow extends Application {
 					} else {
 						image = SwingFXUtils.toFXImage(temp, null);
 						imageView.setImage(image);
-						saveAs.setDisable(false);
-						copy.setDisable(false);
-						filters.forEach(t -> t.setDisable(false));
+						refresh();
 					}
 				}
 			} catch (IOException ex) {
 				new ErrorAlert(ex.getMessage()).showAndWait();
 			}
 		});
+		taskMenuItems.add(open);
 
 		saveAs = new MenuItem("Save _As...", new ImageView(iconSave));
 		saveAs.setOnAction(e -> {
@@ -224,7 +261,7 @@ public class MainWindow extends Application {
 				}
 			}
 		});
-		saveAs.setDisable(true);
+		taskMenuItems.add(saveAs);
 
 		MenuItem exit = new MenuItem("E_xit");
 		exit.setAccelerator(KeyCombination.keyCombination("Alt + F4"));
@@ -252,8 +289,11 @@ public class MainWindow extends Application {
 		ScrollPane scrollPane = new ScrollPane(imageView);
 		scrollPane.setPannable(true);
 
+		statusBar = new StatusBar();
+
 		BorderPane border = new BorderPane(scrollPane);
 		border.setTop(initMenuBar());
+		border.setBottom(statusBar);
 
 		Scene scene = new Scene(border);
 		scene.getStylesheets().add(Paths.CSS);
