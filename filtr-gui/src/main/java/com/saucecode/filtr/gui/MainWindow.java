@@ -19,7 +19,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -47,7 +46,7 @@ public class MainWindow extends Application {
 	private BufferedImage image;
 
 	private Stage primaryStage;
-	
+
 	private ImageView imageView;
 
 	/**
@@ -70,19 +69,21 @@ public class MainWindow extends Application {
 		// ====== EDIT MENU
 		// =========================================================================================
 
-//		undo = new MenuItem("_Undo", new ImageView(iconUndo));
-//		undo.setAccelerator(KeyCombination.keyCombination("Ctrl+Z"));
-//		undo.setOnAction(e -> {
-//
-//		});
-//
-//		redo = new MenuItem("_Redo", new ImageView(iconRedo));
-//		redo.setAccelerator(KeyCombination.keyCombination("Ctrl+Y"));
-//		redo.setOnAction(e -> {
-//
-//		});
-//
-//		Menu menuEdit = new Menu("_Edit", null, undo, redo);
+		undo = new MenuItem("_Undo", new ImageView(iconUndo));
+		undo.setAccelerator(KeyCombination.keyCombination("Ctrl+Z"));
+		undo.setOnAction(e -> {
+			// TODO
+		});
+		undo.setDisable(true);
+
+		redo = new MenuItem("_Redo", new ImageView(iconRedo));
+		redo.setAccelerator(KeyCombination.keyCombination("Ctrl+Y"));
+		redo.setOnAction(e -> {
+			// TODO
+		});
+		redo.setDisable(true);
+
+		Menu menuEdit = new Menu("_Edit", null, undo, redo);
 
 		// =========================================================================================
 		// ======= FILE MENU
@@ -92,7 +93,7 @@ public class MainWindow extends Application {
 		open.setAccelerator(KeyCombination.keyCombination("Ctrl + O"));
 		open.setOnAction(e -> {
 			FileChooser fc = new FileChooser();
-//			fc.setInitialDirectory(new File(System.getProperty("user.dir")));
+			// fc.setInitialDirectory(new File(System.getProperty("user.dir")));
 			try {
 				File input = fc.showOpenDialog(primaryStage);
 				if (input != null) {
@@ -102,7 +103,6 @@ public class MainWindow extends Application {
 								.showAndWait();
 					} else {
 						imageView.setImage(SwingFXUtils.toFXImage(image, null));
-						// TODO
 					}
 				}
 			} catch (IOException ex) {
@@ -121,7 +121,7 @@ public class MainWindow extends Application {
 		// ======= BUILDING MENUBAR
 		// =========================================================================================
 
-		MenuBar menuBar = new MenuBar(menuFile, menuHelp);
+		MenuBar menuBar = new MenuBar(menuFile, menuEdit, menuHelp);
 		menuBar.setUseSystemMenuBar(true);
 		menuBar.useSystemMenuBarProperty().set(true);
 		return menuBar;
@@ -132,10 +132,8 @@ public class MainWindow extends Application {
 
 		this.primaryStage = primaryStage;
 
-//		VBox vBox = new VBox();
 		imageView = new ImageView();
 		ScrollPane scrollpane = new ScrollPane(imageView);
-
 
 		BorderPane border = new BorderPane(scrollpane);
 		border.setTop(initMenuBar());
