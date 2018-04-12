@@ -106,13 +106,23 @@ public class MainWindow extends Application {
 		BlurFilter blurFilter = new BlurFilter();
 		MenuItem filterBlur = new MenuItem(blurFilter.getName());
 		filterBlur.setOnAction(e -> {
-			image = blurFilter.filter(image);
-			imageView.setImage(image);
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					Platform.runLater(new Runnable() {
+						@Override
+						public void run() {
+							image = blurFilter.filter(image);
+							imageView.setImage(image);
+						}
+					});
+				}
+			}).start();
 		});
 		filters.add(filterBlur);
-		
+
 		// TODO add other filters here
-		
+
 		filters.forEach(e -> e.setDisable(true));
 
 		Menu menuFilter = new Menu("_Filter", null, filterBlur);
