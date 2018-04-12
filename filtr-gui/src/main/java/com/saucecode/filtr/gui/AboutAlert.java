@@ -28,9 +28,9 @@ public class AboutAlert extends Alert {
 		initStyle(StageStyle.UTILITY);
 		setTitle("About");
 		setHeaderText(MetaInfo.TITLE + " " + MetaInfo.VERSION);
-		setContentText("Written by " + MetaInfo.AUTHOR + '\n' + "Logo by " + MetaInfo.LOGO_ARTIST + '\n' + "Email: "
-				+ MetaInfo.EMAIL + '\n' + "Repository: " + MetaInfo.REPOSITORY + '\n'
-				+ "Icons designed by Freepik from Flaticon.com");
+		setContentText("Written by " + MetaInfo.AUTHOR + '\n' + "Email: "
+				+ MetaInfo.EMAIL + '\n' + "Repository: " + MetaInfo.REPOSITORY
+				+ '\n' + "Logo and Icons designed by Freepik from Flaticon.com");
 	}
 
 }

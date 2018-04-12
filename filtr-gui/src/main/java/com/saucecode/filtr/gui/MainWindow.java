@@ -1,17 +1,26 @@
 package com.saucecode.filtr.gui;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 public class MainWindow extends Application {
@@ -35,6 +44,12 @@ public class MainWindow extends Application {
 
 	private MenuItem redo;
 
+	private BufferedImage image;
+
+	private Stage primaryStage;
+	
+	private ImageView imageView;
+
 	/**
 	 * Initializes the menu bar and returns it.
 	 * 
@@ -49,48 +64,64 @@ public class MainWindow extends Application {
 		MenuItem about = new MenuItem("A_bout");
 		about.setOnAction(e -> new AboutAlert(logo).showAndWait());
 
-		Menu menuHelp = new Menu("_Help", null, new SeparatorMenuItem(), about);
+		Menu menuHelp = new Menu("_Help", null, about);
 
 		// =========================================================================================
 		// ====== EDIT MENU
 		// =========================================================================================
 
-		undo = new MenuItem("_Undo", new ImageView(iconUndo));
-		undo.setAccelerator(KeyCombination.keyCombination("Ctrl+Z"));
-		undo.setOnAction(e -> {
-
-		});
-
-		redo = new MenuItem("_Redo", new ImageView(iconRedo));
-		redo.setAccelerator(KeyCombination.keyCombination("Ctrl+Y"));
-		redo.setOnAction(e -> {
-
-		});
-
-		Menu menuEdit = new Menu("_Edit", null, undo, redo);
+//		undo = new MenuItem("_Undo", new ImageView(iconUndo));
+//		undo.setAccelerator(KeyCombination.keyCombination("Ctrl+Z"));
+//		undo.setOnAction(e -> {
+//
+//		});
+//
+//		redo = new MenuItem("_Redo", new ImageView(iconRedo));
+//		redo.setAccelerator(KeyCombination.keyCombination("Ctrl+Y"));
+//		redo.setOnAction(e -> {
+//
+//		});
+//
+//		Menu menuEdit = new Menu("_Edit", null, undo, redo);
 
 		// =========================================================================================
 		// ======= FILE MENU
 		// =========================================================================================
 
-		MenuItem restart = new MenuItem("_New Game");
-		restart.setAccelerator(KeyCombination.keyCombination("F2"));
-		restart.setOnAction(e -> {
-
+		MenuItem open = new MenuItem("_Open...");
+		open.setAccelerator(KeyCombination.keyCombination("Ctrl + O"));
+		open.setOnAction(e -> {
+			FileChooser fc = new FileChooser();
+//			fc.setInitialDirectory(new File(System.getProperty("user.dir")));
+			try {
+				File input = fc.showOpenDialog(primaryStage);
+				if (input != null) {
+					image = ImageIO.read(input);
+					if (image == null) {
+						new ErrorAlert("The selected file is no valid image!")
+								.showAndWait();
+					} else {
+						imageView.setImage(SwingFXUtils.toFXImage(image, null));
+						// TODO
+					}
+				}
+			} catch (IOException ex) {
+				new ErrorAlert(ex.getMessage()).showAndWait();
+			}
 		});
 
 		MenuItem exit = new MenuItem("E_xit");
-		exit.setAccelerator(KeyCombination.keyCombination("Alt+F4"));
+		exit.setAccelerator(KeyCombination.keyCombination("Alt + F4"));
 		exit.setOnAction(e -> Platform.exit());
 
-		Menu menuFile = new Menu("_File", null, restart,
-				new SeparatorMenuItem(), exit);
+		Menu menuFile = new Menu("_File", null, open, new SeparatorMenuItem(),
+				exit);
 
 		// =========================================================================================
 		// ======= BUILDING MENUBAR
 		// =========================================================================================
 
-		MenuBar menuBar = new MenuBar(menuFile, menuEdit, menuHelp);
+		MenuBar menuBar = new MenuBar(menuFile, menuHelp);
 		menuBar.setUseSystemMenuBar(true);
 		menuBar.useSystemMenuBarProperty().set(true);
 		return menuBar;
@@ -99,15 +130,22 @@ public class MainWindow extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 
-		VBox vBox = new VBox();
+		this.primaryStage = primaryStage;
 
-		BorderPane border = new BorderPane(vBox);
+//		VBox vBox = new VBox();
+		imageView = new ImageView();
+		ScrollPane scrollpane = new ScrollPane(imageView);
+
+
+		BorderPane border = new BorderPane(scrollpane);
 		border.setTop(initMenuBar());
 
 		Scene scene = new Scene(border);
 		scene.getStylesheets().add(Paths.CSS);
 		primaryStage.setTitle(MetaInfo.TITLE);
 		primaryStage.setScene(scene);
+		primaryStage.setWidth(1200.0);
+		primaryStage.setHeight(800.0);
 		// primaryStage.setResizable(false);
 		primaryStage.getIcons().add(logo);
 
