@@ -11,7 +11,7 @@ public class MetaInfo {
 	/**
 	 * The title.
 	 */
-	public static final String TITLE = "Filtr";
+	public static final String TITLE = "filtr";
 
 	/**
 	 * The current version.
