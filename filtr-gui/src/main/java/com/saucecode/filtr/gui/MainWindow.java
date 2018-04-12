@@ -35,6 +35,11 @@ public class MainWindow extends Application {
 	private final Image logo = new Image(Paths.LOGO);
 
 	/**
+	 * The save icon.
+	 */
+	private final Image iconSave = new Image(Paths.ICON_SAVE);
+
+	/**
 	 * The undo icon.
 	 */
 	private final Image iconUndo = new Image(Paths.ICON_UNDO);
@@ -43,6 +48,16 @@ public class MainWindow extends Application {
 	 * The redo icon.
 	 */
 	private final Image iconRedo = new Image(Paths.ICON_REDO);
+
+	/**
+	 * The copy icon.
+	 */
+	private final Image iconCopy = new Image(Paths.ICON_COPY);
+
+	/**
+	 * The paste icon.
+	 */
+	private final Image iconPaste = new Image(Paths.ICON_PASTE);
 
 	private MenuItem undo;
 
@@ -55,11 +70,11 @@ public class MainWindow extends Application {
 	private ImageView imageView;
 
 	private MenuItem saveAs;
-	
+
 	private MenuItem copy;
-	
+
 	private MenuItem paste;
-	
+
 	private Clipboard clipboard = Clipboard.getSystemClipboard();
 
 	/**
@@ -96,7 +111,7 @@ public class MainWindow extends Application {
 		});
 		redo.setDisable(true);
 
-		copy = new MenuItem("_Copy", null);
+		copy = new MenuItem("_Copy", new ImageView(iconCopy));
 		copy.setAccelerator(KeyCombination.keyCombination("Ctrl + C"));
 		copy.setOnAction(e -> {
 			ClipboardContent content = new ClipboardContent();
@@ -109,7 +124,7 @@ public class MainWindow extends Application {
 		});
 		copy.setDisable(true);
 
-		paste = new MenuItem("_Paste", null);
+		paste = new MenuItem("_Paste", new ImageView(iconPaste));
 		paste.setAccelerator(KeyCombination.keyCombination("Ctrl + V"));
 		paste.setOnAction(e -> {
 			if (clipboard.hasImage()) {
@@ -157,7 +172,7 @@ public class MainWindow extends Application {
 			}
 		});
 
-		saveAs = new MenuItem("Save _As...");
+		saveAs = new MenuItem("Save _As...", new ImageView(iconSave));
 		saveAs.setOnAction(e -> {
 			FileChooser fc = new FileChooser();
 			fc.setInitialFileName("*.png");
@@ -210,13 +225,14 @@ public class MainWindow extends Application {
 		primaryStage.setHeight(800.0);
 		// primaryStage.setResizable(false);
 		primaryStage.getIcons().add(logo);
-		
-        new com.sun.glass.ui.ClipboardAssistance(com.sun.glass.ui.Clipboard.SYSTEM) {
-            @Override
-            public void contentChanged() {
-                paste.setDisable(!clipboard.hasImage());
-            }
-        };
+
+		new com.sun.glass.ui.ClipboardAssistance(
+				com.sun.glass.ui.Clipboard.SYSTEM) {
+			@Override
+			public void contentChanged() {
+				paste.setDisable(!clipboard.hasImage());
+			}
+		};
 
 		primaryStage.show();
 	}
