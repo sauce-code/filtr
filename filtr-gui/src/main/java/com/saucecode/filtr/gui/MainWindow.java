@@ -20,6 +20,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 
 public class MainWindow extends Application {
@@ -49,6 +50,8 @@ public class MainWindow extends Application {
 
 	private ImageView imageView;
 
+	private MenuItem saveAs;
+
 	/**
 	 * Initializes the menu bar and returns it.
 	 * 
@@ -70,14 +73,14 @@ public class MainWindow extends Application {
 		// =========================================================================================
 
 		undo = new MenuItem("_Undo", new ImageView(iconUndo));
-		undo.setAccelerator(KeyCombination.keyCombination("Ctrl+Z"));
+		undo.setAccelerator(KeyCombination.keyCombination("Ctrl + Z"));
 		undo.setOnAction(e -> {
 			// TODO
 		});
 		undo.setDisable(true);
 
 		redo = new MenuItem("_Redo", new ImageView(iconRedo));
-		redo.setAccelerator(KeyCombination.keyCombination("Ctrl+Y"));
+		redo.setAccelerator(KeyCombination.keyCombination("Ctrl + Y"));
 		redo.setOnAction(e -> {
 			// TODO
 		});
@@ -93,6 +96,7 @@ public class MainWindow extends Application {
 		open.setAccelerator(KeyCombination.keyCombination("Ctrl + O"));
 		open.setOnAction(e -> {
 			FileChooser fc = new FileChooser();
+
 			// fc.setInitialDirectory(new File(System.getProperty("user.dir")));
 			try {
 				File input = fc.showOpenDialog(primaryStage);
@@ -103,6 +107,7 @@ public class MainWindow extends Application {
 								.showAndWait();
 					} else {
 						imageView.setImage(SwingFXUtils.toFXImage(image, null));
+						saveAs.setDisable(false);
 					}
 				}
 			} catch (IOException ex) {
@@ -110,12 +115,28 @@ public class MainWindow extends Application {
 			}
 		});
 
+		saveAs = new MenuItem("Save _As...");
+		saveAs.setOnAction(e -> {
+			FileChooser fc = new FileChooser();
+			fc.setInitialFileName("*.png");
+			fc.getExtensionFilters().add(new ExtensionFilter("PNG", "*.png"));
+			File outputfile = fc.showSaveDialog(primaryStage);
+			if (outputfile != null) {
+				try {
+					ImageIO.write(image, "png", outputfile);
+				} catch (IOException ex) {
+					new ErrorAlert(ex.getMessage()).showAndWait();
+				}
+			}
+		});
+		saveAs.setDisable(true);
+
 		MenuItem exit = new MenuItem("E_xit");
 		exit.setAccelerator(KeyCombination.keyCombination("Alt + F4"));
 		exit.setOnAction(e -> Platform.exit());
 
-		Menu menuFile = new Menu("_File", null, open, new SeparatorMenuItem(),
-				exit);
+		Menu menuFile = new Menu("_File", null, open, saveAs,
+				new SeparatorMenuItem(), exit);
 
 		// =========================================================================================
 		// ======= BUILDING MENUBAR
