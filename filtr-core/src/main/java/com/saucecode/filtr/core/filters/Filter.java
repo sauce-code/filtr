@@ -1,7 +1,5 @@
 package com.saucecode.filtr.core.filters;
 
-import java.awt.image.BufferedImage;
-
 import javafx.scene.image.Image;
 
 /**
@@ -27,6 +25,6 @@ public interface Filter {
 	 *            the image, which shall be filtered
 	 * @since 1.0.0
 	 */
-	public BufferedImage filter(Image image);
+	public Image filter(Image image);
 
 }

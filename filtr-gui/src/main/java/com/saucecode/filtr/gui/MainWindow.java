@@ -3,8 +3,12 @@ package com.saucecode.filtr.gui;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.imageio.ImageIO;
+
+import com.saucecode.filtr.core.filters.BlurFilter;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -77,6 +81,8 @@ public class MainWindow extends Application {
 
 	private Clipboard clipboard = Clipboard.getSystemClipboard();
 
+	private List<MenuItem> filters = new LinkedList<MenuItem>();
+
 	/**
 	 * Initializes the menu bar and returns it.
 	 * 
@@ -92,6 +98,24 @@ public class MainWindow extends Application {
 		about.setOnAction(e -> new AboutAlert(logo).showAndWait());
 
 		Menu menuHelp = new Menu("_Help", null, about);
+
+		// =========================================================================================
+		// ==== FILTER MENU
+		// =========================================================================================
+
+		BlurFilter blurFilter = new BlurFilter();
+		MenuItem filterBlur = new MenuItem(blurFilter.getName());
+		filterBlur.setOnAction(e -> {
+			image = blurFilter.filter(image);
+			imageView.setImage(image);
+		});
+		filters.add(filterBlur);
+		
+		// TODO add other filters here
+		
+		filters.forEach(e -> e.setDisable(true));
+
+		Menu menuFilter = new Menu("_Filter", null, filterBlur);
 
 		// =========================================================================================
 		// ====== EDIT MENU
@@ -130,7 +154,9 @@ public class MainWindow extends Application {
 			if (clipboard.hasImage()) {
 				image = clipboard.getImage();
 				imageView.setImage(image);
+				saveAs.setDisable(false);
 				copy.setDisable(false);
+				filters.forEach(t -> t.setDisable(false));
 			}
 		});
 		paste.setDisable(!clipboard.hasImage());
@@ -165,6 +191,7 @@ public class MainWindow extends Application {
 						imageView.setImage(image);
 						saveAs.setDisable(false);
 						copy.setDisable(false);
+						filters.forEach(t -> t.setDisable(false));
 					}
 				}
 			} catch (IOException ex) {
@@ -200,7 +227,7 @@ public class MainWindow extends Application {
 		// ======= BUILDING MENUBAR
 		// =========================================================================================
 
-		MenuBar menuBar = new MenuBar(menuFile, menuEdit, menuHelp);
+		MenuBar menuBar = new MenuBar(menuFile, menuEdit, menuFilter, menuHelp);
 		menuBar.setUseSystemMenuBar(true);
 		menuBar.useSystemMenuBarProperty().set(true);
 		return menuBar;
