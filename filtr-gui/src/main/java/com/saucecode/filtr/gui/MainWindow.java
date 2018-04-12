@@ -249,9 +249,10 @@ public class MainWindow extends Application {
 		this.primaryStage = primaryStage;
 
 		imageView = new ImageView();
-		ScrollPane scrollpane = new ScrollPane(imageView);
+		ScrollPane scrollPane = new ScrollPane(imageView);
+		scrollPane.setPannable(true);
 
-		BorderPane border = new BorderPane(scrollpane);
+		BorderPane border = new BorderPane(scrollPane);
 		border.setTop(initMenuBar());
 
 		Scene scene = new Scene(border);
