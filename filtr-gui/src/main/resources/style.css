@@ -1,0 +1,13 @@
+.grid {
+	-fx-alignment: center;
+	-fx-grid-lines-visible: false;
+	-fx-padding: 4.0, 0.0, 0.0, 120.0;
+}
+
+.tile {
+	-fx-stroke-width: 3.0;
+}
+
+.fieldline {
+	-fx-stroke-width: 4.0;
+}
