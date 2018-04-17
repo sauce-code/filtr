@@ -10,18 +10,22 @@ import javax.imageio.ImageIO;
 
 import org.controlsfx.control.StatusBar;
 
+import com.saucecode.filtr.core.Imgur;
 import com.saucecode.filtr.core.filters.BlurFilter;
 
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.image.Image;
@@ -30,9 +34,12 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class MainWindow extends Application {
 
@@ -66,11 +73,11 @@ public class MainWindow extends Application {
 	 */
 	private final Image iconPaste = new Image(Paths.ICON_PASTE);
 
+	private final Imgur imgur = new Imgur();
+
 	private MenuItem undo;
 
 	private MenuItem redo;
-
-	private Image image;
 
 	private Stage primaryStage;
 
@@ -84,91 +91,71 @@ public class MainWindow extends Application {
 
 	private MenuItem paste;
 
-	private Clipboard clipboard = Clipboard.getSystemClipboard();
+	private final Clipboard clipboard = Clipboard.getSystemClipboard();
 
 	private List<MenuItem> filterMenuItems = new LinkedList<MenuItem>();
 
 	private List<MenuItem> taskMenuItems = new LinkedList<MenuItem>();
 
-	private boolean working = false;
+	private Stage busyDialog;
 
-	private void refresh() {
-		if (working) {
-			taskMenuItems.forEach(e -> e.setDisable(true));
-			filterMenuItems.forEach(e -> e.setDisable(true));
-		} else {
-			taskMenuItems.forEach(e -> e.setDisable(false));
-			filterMenuItems.forEach(e -> e.setDisable(image == null));
-			saveAs.setDisable(image == null);
-			copy.setDisable(image == null);
-			paste.setDisable(clipboard.hasImage());
-		}
+	private ProgressBar progressBar;
 
-	}
-
-	/**
-	 * Initializes the menu bar and returns it.
-	 * 
-	 * @return the initialized menubar
-	 */
-	private MenuBar initMenuBar() {
-
-		// =========================================================================================
-		// ==== HELP MENU
-		// =========================================================================================
-
+	private Menu initMenuHelp() {
 		MenuItem about = new MenuItem("A_bout");
 		about.setOnAction(e -> new AboutAlert(logo).showAndWait());
 
-		Menu menuHelp = new Menu("_Help", null, about);
+		return new Menu("_Help", null, about);
+	}
 
-		// =========================================================================================
-		// ==== FILTER MENU
-		// =========================================================================================
-
+	private Menu initMenuFilter() {
 		BlurFilter blurFilter = new BlurFilter();
 		MenuItem filterBlur = new MenuItem(blurFilter.getName());
 		statusBar.progressProperty().addListener(e -> {
 
 		});
 		filterBlur.setOnAction(e -> {
+
+			// Platform.runLater(() -> imgur.apply(blurFilter));
+
 			Task<Void> task = new Task<Void>() {
 				@Override
 				protected Void call() throws Exception {
-					working = true;
-					refresh();
-					while (true) {
-						System.out.println("sdasd");
-					}
-					// return null;
+					imgur.apply(blurFilter);
+					return null;
 				}
 			};
-			new Thread(task).start();
-			// new Thread(new Runnable() {
-			// @Override
-			// public void run() {
-			// Platform.runLater(new Runnable() {
-			// @Override
-			// public void run() {
-			// image = blurFilter.filter(image);
-			// imageView.setImage(image);
+			Thread thread = new Thread(task);
+			// thread.setDaemon(true);
+			thread.start();
+
+			// Task<Void> task = new Task<Void>() {
+			// @Override public Void call() {
+			// final int max = 1000000;
+			// for (int i=1; i<=max; i++) {
+			// if (isCancelled()) {
+			// break;
 			// }
-			// });
+			// updateProgress(i, max);
 			// }
-			// }).start();
+			// return null;
+			// }
+			// };
+			// progressBar.progressProperty().bind(task.progressProperty());
+			// new Thread(task).start();
+
 		});
+
 		filterMenuItems.add(filterBlur);
 
 		// TODO add other filters here
 
 		filterMenuItems.forEach(e -> e.setDisable(true));
 
-		Menu menuFilter = new Menu("_Filter", null, filterBlur);
+		return new Menu("Fi_lter", null, filterBlur);
+	}
 
-		// =========================================================================================
-		// ====== EDIT MENU
-		// =========================================================================================
-
+	private Menu initMenuEdit() {
 		undo = new MenuItem("_Undo", new ImageView(iconUndo));
 		undo.setAccelerator(KeyCombination.keyCombination("Ctrl + Z"));
 		undo.setOnAction(e -> {
@@ -189,7 +176,7 @@ public class MainWindow extends Application {
 		copy.setAccelerator(KeyCombination.keyCombination("Ctrl + C"));
 		copy.setOnAction(e -> {
 			ClipboardContent content = new ClipboardContent();
-			content.putImage(image);
+			content.putImage(imgur.getImage().get());
 			clipboard.setContent(content);
 			Alert alert = new Alert(AlertType.INFORMATION);
 			alert.setHeaderText(null);
@@ -202,20 +189,16 @@ public class MainWindow extends Application {
 		paste.setAccelerator(KeyCombination.keyCombination("Ctrl + V"));
 		paste.setOnAction(e -> {
 			if (clipboard.hasImage()) {
-				image = clipboard.getImage();
-				imageView.setImage(image);
-				refresh();
+				imgur.setImage(clipboard.getImage());
 			}
 		});
 		taskMenuItems.add(paste);
 
-		Menu menuEdit = new Menu("_Edit", null, undo, redo,
-				new SeparatorMenuItem(), copy, paste);
+		return new Menu("_Edit", null, undo, redo, new SeparatorMenuItem(),
+				copy, paste);
+	}
 
-		// =========================================================================================
-		// ======= FILE MENU
-		// =========================================================================================
-
+	private Menu initMenuFile() {
 		MenuItem open = new MenuItem("_Open...");
 		open.setAccelerator(KeyCombination.keyCombination("Ctrl + O"));
 		open.setOnAction(e -> {
@@ -235,9 +218,7 @@ public class MainWindow extends Application {
 						new ErrorAlert("The selected file is no valid image!")
 								.showAndWait();
 					} else {
-						image = SwingFXUtils.toFXImage(temp, null);
-						imageView.setImage(image);
-						refresh();
+						imgur.setImage(SwingFXUtils.toFXImage(temp, null));
 					}
 				}
 			} catch (IOException ex) {
@@ -254,7 +235,8 @@ public class MainWindow extends Application {
 			File outputfile = fc.showSaveDialog(primaryStage);
 			if (outputfile != null) {
 				try {
-					BufferedImage temp = SwingFXUtils.fromFXImage(image, null);
+					BufferedImage temp = SwingFXUtils
+							.fromFXImage(imgur.getImage().get(), null);
 					ImageIO.write(temp, "png", outputfile);
 				} catch (IOException ex) {
 					new ErrorAlert(ex.getMessage()).showAndWait();
@@ -267,14 +249,18 @@ public class MainWindow extends Application {
 		exit.setAccelerator(KeyCombination.keyCombination("Alt + F4"));
 		exit.setOnAction(e -> Platform.exit());
 
-		Menu menuFile = new Menu("_File", null, open, saveAs,
-				new SeparatorMenuItem(), exit);
+		return new Menu("_File", null, open, saveAs, new SeparatorMenuItem(),
+				exit);
+	}
 
-		// =========================================================================================
-		// ======= BUILDING MENUBAR
-		// =========================================================================================
-
-		MenuBar menuBar = new MenuBar(menuFile, menuEdit, menuFilter, menuHelp);
+	/**
+	 * Initializes the menu bar and returns it.
+	 * 
+	 * @return the initialized menubar
+	 */
+	private MenuBar initMenuBar() {
+		MenuBar menuBar = new MenuBar(initMenuFile(), initMenuEdit(),
+				initMenuFilter(), initMenuHelp());
 		menuBar.setUseSystemMenuBar(true);
 		menuBar.useSystemMenuBarProperty().set(true);
 		return menuBar;
@@ -283,6 +269,42 @@ public class MainWindow extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 
+		ProgressBar progress = new ProgressBar();
+		progress.setMinWidth(300.0);
+		progress.setMinHeight(40.0);
+		imgur.getProgress().addListener(e -> Platform.runLater(() -> {
+			double currentProgress = imgur.getProgress().get();
+			progress.setProgress(currentProgress);
+			busyDialog.setTitle((int) (currentProgress * 100) + "%");
+		}));
+
+		Button cancel = new Button("Cancel");
+		cancel.setOnAction(e -> {
+			// TODO
+		});
+		VBox vBox = new VBox(progress, cancel);
+		vBox.setAlignment(Pos.CENTER);
+		Scene dialogScene = new Scene(vBox);
+		busyDialog = new Stage(StageStyle.UNIFIED);
+		busyDialog.getIcons().add(logo);
+		busyDialog.setScene(dialogScene);
+		busyDialog.initOwner(primaryStage);
+		busyDialog.initModality(Modality.APPLICATION_MODAL);
+
+		imgur.getImage().addListener(e -> Platform.runLater(() -> {
+			imageView.setImage(imgur.getImage().get());
+			filterMenuItems.forEach(
+					e2 -> e2.setDisable(imgur.getImage().get() == null));
+		}));
+		imgur.isBusy().addListener(e -> {
+			if (imgur.isBusy().get()) {
+				Platform.runLater(() -> busyDialog.show());
+
+			} else {
+				Platform.runLater(() -> busyDialog.close());
+			}
+		});
+
 		this.primaryStage = primaryStage;
 
 		imageView = new ImageView();
@@ -290,6 +312,10 @@ public class MainWindow extends Application {
 		scrollPane.setPannable(true);
 
 		statusBar = new StatusBar();
+		imgur.getProgress().addListener(e -> {
+			Platform.runLater(
+					() -> statusBar.setProgress(imgur.getProgress().get()));
+		});
 
 		BorderPane border = new BorderPane(scrollPane);
 		border.setTop(initMenuBar());
@@ -317,5 +343,23 @@ public class MainWindow extends Application {
 	public static void main(String[] args) {
 		launch(args);
 	}
+
+	// private void update() {
+	// if (imgur.isBusy().get()) {
+	// taskMenuItems.forEach(e -> e.setDisable(true));
+	// filterMenuItems.forEach(e -> e.setDisable(true));
+	// } else {
+	// if (busy != null) {
+	// busy.close();
+	// }
+	// imageView.setImage(imgur.getImage());
+	// taskMenuItems.forEach(e -> e.setDisable(false));
+	// filterMenuItems
+	// .forEach(e -> e.setDisable(imgur.getImage() == null));
+	// saveAs.setDisable(imgur.getImage() == null);
+	// copy.setDisable(imgur.getImage() == null);
+	// paste.setDisable(clipboard.hasImage());
+	// }
+	// }
 
 }

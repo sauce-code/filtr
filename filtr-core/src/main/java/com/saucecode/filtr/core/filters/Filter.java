@@ -1,5 +1,6 @@
 package com.saucecode.filtr.core.filters;
 
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.image.Image;
 
 /**
@@ -26,5 +27,7 @@ public interface Filter {
 	 * @since 1.0.0
 	 */
 	public Image filter(Image image);
+	
+	public void setProgress(SimpleDoubleProperty progress);
 
 }
