@@ -3,6 +3,7 @@ package com.saucecode.filtr.gui;
 import com.saucecode.filtr.core.Imgur;
 import com.saucecode.filtr.core.Logic;
 
+import javafx.application.Platform;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Slider;
@@ -12,7 +13,7 @@ import javafx.stage.Stage;
 public class ThreadDialog extends Dialog<Integer> {
 
 	public ThreadDialog(Logic logic, Image logo) {
-		setTitle("filtr Threads");
+		setTitle("filtr Settings - Threads");
 		setHeaderText("Maximum Number of Threads:");
 		getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 		Stage stage = (Stage) getDialogPane().getScene().getWindow();
@@ -23,13 +24,15 @@ public class ThreadDialog extends Dialog<Integer> {
 		slider.setMax(Imgur.MAX_THREAD_COUNT);
 		slider.setValue(logic.getThreadCount().get());
 		slider.setShowTickLabels(true);
-		slider.setShowTickMarks(false);
+		slider.setShowTickMarks(true);
 		slider.setMajorTickUnit(1);
-		slider.setMinorTickCount(1);
+		slider.setMinorTickCount(0);
 		slider.valueProperty()
 				.addListener((obs, oldval, newVal) -> slider.setValue((int) Math.round(newVal.doubleValue())));
 
 		getDialogPane().setContent(slider);
+		
+		Platform.runLater(() -> slider.requestFocus());
 		
 		setResultConverter(dialogButton -> {
 		    if (dialogButton == ButtonType.OK) {

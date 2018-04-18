@@ -36,6 +36,10 @@ public class Imgur implements Logic {
 	
 	@Override
 	public void apply(Filter filter) {
+		if (image == null) {
+			throw new IllegalStateException(
+					"There is no image, can't apply filter " + filter.getName());
+		}
 		if (busy.get()) {
 			throw new IllegalStateException(
 					"Busy right now, can't apply filter " + filter.getName());
@@ -84,6 +88,11 @@ public class Imgur implements Logic {
 			throw new IllegalArgumentException("threadCount must not be greater than " + MAX_THREAD_COUNT);
 		}
 		this.threadCount.set(threadCount);
+	}
+
+	@Override
+	public boolean isFilterApplyable() {
+		return (image != null) && !busy.get();
 	}
 
 }

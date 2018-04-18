@@ -248,10 +248,9 @@ public class MainWindow extends Application {
 		VBox vBox = new VBox(progress, cancel);
 		vBox.setAlignment(Pos.CENTER);
 		Scene dialogScene = new Scene(vBox);
-		busyDialog = new Stage(StageStyle.UNIFIED);
+		busyDialog = new Stage(StageStyle.DECORATED);
 		busyDialog.getIcons().add(logo);
 		busyDialog.setScene(dialogScene);
-		busyDialog.initOwner(primaryStage);
 		busyDialog.initModality(Modality.APPLICATION_MODAL);
 		busyDialog.setResizable(false);
 		busyDialog.setOnCloseRequest(e -> imgur.stop());
@@ -305,23 +304,5 @@ public class MainWindow extends Application {
 	public static void main(String[] args) {
 		launch(args);
 	}
-
-	// private void update() {
-	// if (imgur.isBusy().get()) {
-	// taskMenuItems.forEach(e -> e.setDisable(true));
-	// filterMenuItems.forEach(e -> e.setDisable(true));
-	// } else {
-	// if (busy != null) {
-	// busy.close();
-	// }
-	// imageView.setImage(imgur.getImage());
-	// taskMenuItems.forEach(e -> e.setDisable(false));
-	// filterMenuItems
-	// .forEach(e -> e.setDisable(imgur.getImage() == null));
-	// saveAs.setDisable(imgur.getImage() == null);
-	// copy.setDisable(imgur.getImage() == null);
-	// paste.setDisable(clipboard.hasImage());
-	// }
-	// }
 
 }

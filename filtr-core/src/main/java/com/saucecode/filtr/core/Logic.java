@@ -28,4 +28,6 @@ public interface Logic {
 	
 	public void setThreadCount(Integer threadCount);
 	
+	public boolean isFilterApplyable();
+	
 }
