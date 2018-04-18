@@ -29,5 +29,7 @@ public interface Filter {
 	public Image filter(Image image);
 	
 	public void setProgress(SimpleDoubleProperty progress);
+	
+	public void setThreadCount(int threadCount);
 
 }

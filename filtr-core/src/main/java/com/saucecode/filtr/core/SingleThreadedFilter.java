@@ -36,5 +36,9 @@ public abstract class SingleThreadedFilter implements Filter {
 	}
 
 	protected abstract void computePixel(int x, int y, PixelReader pr, PixelWriter pw);
+	
+	public void setThreadCount(int threadCount) {
+		// XXX
+	}
 
 }

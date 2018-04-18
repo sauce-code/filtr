@@ -2,19 +2,22 @@ package com.saucecode.filtr.core;
 
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
 import javafx.scene.image.Image;
 
 public class Imgur implements Logic {
 	
-	private Thread thread;
-
 	private final SimpleObjectProperty<Image> image = new SimpleObjectProperty<>();
 
 	private final SimpleBooleanProperty busy = new SimpleBooleanProperty(false);
 	
 	private final SimpleDoubleProperty progress = new SimpleDoubleProperty(0.0);
+	
+	private final SimpleIntegerProperty threadCount = new SimpleIntegerProperty(MAX_THREAD_COUNT);
+
+	private Thread thread;
 
 	@Override
 	public SimpleObjectProperty<Image> getImage() {
@@ -39,6 +42,7 @@ public class Imgur implements Logic {
 		}
 		busy.set(true);
 		filter.setProgress(progress);
+		filter.setThreadCount(threadCount.get());
 		Task<Void> task = new Task<Void>() {
 			@Override
 			protected Void call() throws Exception {
@@ -64,6 +68,22 @@ public class Imgur implements Logic {
 	private void end() {
 		busy.set(false);
 		progress.set(0.0);
+	}
+
+	@Override
+	public SimpleIntegerProperty getThreadCount() {
+		return threadCount;
+	}
+
+	@Override
+	public void setThreadCount(Integer threadCount) {
+		if (threadCount < MIN_THREAD_COUNT) {
+			throw new IllegalArgumentException("threadCount must not be smaller than " + MIN_THREAD_COUNT);
+		}
+		if (threadCount > MAX_THREAD_COUNT) {
+			throw new IllegalArgumentException("threadCount must not be greater than " + MAX_THREAD_COUNT);
+		}
+		this.threadCount.set(threadCount);
 	}
 
 }

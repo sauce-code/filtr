@@ -106,10 +106,22 @@ public class MainWindow extends Application {
 		return new Menu("_Help", null, about);
 	}
 
+	private Menu initSettingsMenu() {
+		MenuItem threads = new MenuItem("Threads...");
+		threads.setOnAction(e -> {
+			ThreadDialog dialog = new ThreadDialog(imgur, logo);
+			Integer ret = dialog.showAndWait().get();
+			if (ret != -1) {
+				imgur.setThreadCount(ret);
+			}
+		});
+		return new Menu("_Settings", null, threads);
+	}
+
 	private Menu initMenuFilter() {
 		FilterMenuItem blurMulti = new FilterMenuItem(new BlurFilterMulti(), imgur);
 		FilterMenuItem blurSingle = new FilterMenuItem(new BlurFilterSingle(), imgur);
-		
+
 		return new Menu("Fi_lter", null, blurMulti, blurSingle);
 	}
 
@@ -152,8 +164,7 @@ public class MainWindow extends Application {
 		});
 		taskMenuItems.add(paste);
 
-		return new Menu("_Edit", null, undo, redo, new SeparatorMenuItem(),
-				copy, paste);
+		return new Menu("_Edit", null, undo, redo, new SeparatorMenuItem(), copy, paste);
 	}
 
 	private Menu initMenuFile() {
@@ -161,20 +172,16 @@ public class MainWindow extends Application {
 		open.setAccelerator(KeyCombination.keyCombination("Ctrl + O"));
 		open.setOnAction(e -> {
 			FileChooser fc = new FileChooser();
-			fc.getExtensionFilters().addAll(
-					new FileChooser.ExtensionFilter("All Images", "*.*"),
-					new FileChooser.ExtensionFilter("JPG", "*.jpg"),
-					new FileChooser.ExtensionFilter("GIF", "*.gif"),
-					new FileChooser.ExtensionFilter("BMP", "*.bmp"),
-					new FileChooser.ExtensionFilter("PNG", "*.png"));
+			fc.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("All Images", "*.*"),
+					new FileChooser.ExtensionFilter("JPG", "*.jpg"), new FileChooser.ExtensionFilter("GIF", "*.gif"),
+					new FileChooser.ExtensionFilter("BMP", "*.bmp"), new FileChooser.ExtensionFilter("PNG", "*.png"));
 			// fc.setInitialDirectory(new File(System.getProperty("user.dir")));
 			try {
 				File input = fc.showOpenDialog(primaryStage);
 				if (input != null) {
 					BufferedImage temp = ImageIO.read(input);
 					if (temp == null) {
-						new ErrorAlert("The selected file is no valid image!")
-								.showAndWait();
+						new ErrorAlert("The selected file is no valid image!").showAndWait();
 					} else {
 						imgur.setImage(SwingFXUtils.toFXImage(temp, null));
 					}
@@ -193,8 +200,7 @@ public class MainWindow extends Application {
 			File outputfile = fc.showSaveDialog(primaryStage);
 			if (outputfile != null) {
 				try {
-					BufferedImage temp = SwingFXUtils
-							.fromFXImage(imgur.getImage().get(), null);
+					BufferedImage temp = SwingFXUtils.fromFXImage(imgur.getImage().get(), null);
 					ImageIO.write(temp, "png", outputfile);
 				} catch (IOException ex) {
 					new ErrorAlert(ex.getMessage()).showAndWait();
@@ -207,8 +213,7 @@ public class MainWindow extends Application {
 		exit.setAccelerator(KeyCombination.keyCombination("Alt + F4"));
 		exit.setOnAction(e -> Platform.exit());
 
-		return new Menu("_File", null, open, saveAs, new SeparatorMenuItem(),
-				exit);
+		return new Menu("_File", null, open, saveAs, new SeparatorMenuItem(), exit);
 	}
 
 	/**
@@ -217,8 +222,8 @@ public class MainWindow extends Application {
 	 * @return the initialized menubar
 	 */
 	private MenuBar initMenuBar() {
-		MenuBar menuBar = new MenuBar(initMenuFile(), initMenuEdit(),
-				initMenuFilter(), initMenuHelp());
+		MenuBar menuBar = new MenuBar(initMenuFile(), initMenuEdit(), initMenuFilter(), initSettingsMenu(),
+				initMenuHelp());
 		menuBar.setUseSystemMenuBar(true);
 		menuBar.useSystemMenuBarProperty().set(true);
 		return menuBar;
@@ -248,12 +253,12 @@ public class MainWindow extends Application {
 		busyDialog.setScene(dialogScene);
 		busyDialog.initOwner(primaryStage);
 		busyDialog.initModality(Modality.APPLICATION_MODAL);
+		busyDialog.setResizable(false);
 		busyDialog.setOnCloseRequest(e -> imgur.stop());
 
 		imgur.getImage().addListener(e -> Platform.runLater(() -> {
 			imageView.setImage(imgur.getImage().get());
-			filterMenuItems.forEach(
-					e2 -> e2.setDisable(imgur.getImage().get() == null));
+			filterMenuItems.forEach(e2 -> e2.setDisable(imgur.getImage().get() == null));
 		}));
 		imgur.isBusy().addListener(e -> {
 			if (imgur.isBusy().get()) {
@@ -272,8 +277,7 @@ public class MainWindow extends Application {
 
 		statusBar = new StatusBar();
 		imgur.getProgress().addListener(e -> {
-			Platform.runLater(
-					() -> statusBar.setProgress(imgur.getProgress().get()));
+			Platform.runLater(() -> statusBar.setProgress(imgur.getProgress().get()));
 		});
 
 		BorderPane border = new BorderPane(scrollPane);
@@ -288,8 +292,7 @@ public class MainWindow extends Application {
 		primaryStage.setHeight(800.0);
 		primaryStage.getIcons().add(logo);
 
-		new com.sun.glass.ui.ClipboardAssistance(
-				com.sun.glass.ui.Clipboard.SYSTEM) {
+		new com.sun.glass.ui.ClipboardAssistance(com.sun.glass.ui.Clipboard.SYSTEM) {
 			@Override
 			public void contentChanged() {
 				paste.setDisable(!clipboard.hasImage());

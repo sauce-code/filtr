@@ -13,6 +13,8 @@ public abstract class MultiThreadedFilter implements Filter {
 
 	protected SimpleDoubleProperty progress;
 	
+	protected int threadCount;
+	
 	@Override
 	public void setProgress(SimpleDoubleProperty progress) {
 		this.progress = progress;
@@ -28,12 +30,11 @@ public abstract class MultiThreadedFilter implements Filter {
 		if (Thread.currentThread().isInterrupted()) {
 			return image;
 		}
-		int processors = Runtime.getRuntime().availableProcessors() + 1;
-		final CountDownLatch latch = new CountDownLatch(processors);
-		final ArrayList<Thread> threads = new ArrayList<>(processors);
-		for (int p = 0; p < processors; p++) {
-			final int current = (int) (image.getHeight() * p / processors);
-			final int next = (int) (image.getHeight() * (p + 1) / processors);
+		final CountDownLatch latch = new CountDownLatch(threadCount);
+		final ArrayList<Thread> threads = new ArrayList<>(threadCount);
+		for (int p = 0; p < threadCount; p++) {
+			final int current = (int) (image.getHeight() * p / threadCount);
+			final int next = (int) (image.getHeight() * (p + 1) / threadCount);
 			final int width = (int) image.getWidth();
 			final int height = (int) image.getHeight();
 			threads.add(new Thread(new Runnable() {
@@ -73,5 +74,10 @@ public abstract class MultiThreadedFilter implements Filter {
 	}
 	
 	protected abstract void computePixel(int x, int y, PixelReader pr, PixelWriter pw);
+	
+	@Override
+	public void setThreadCount(int threadCount) {
+		this.threadCount = threadCount;
+	}
 	
 }
