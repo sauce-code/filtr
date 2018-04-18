@@ -11,7 +11,8 @@ import javax.imageio.ImageIO;
 import org.controlsfx.control.StatusBar;
 
 import com.saucecode.filtr.core.Imgur;
-import com.saucecode.filtr.core.filters.BlurFilter;
+import com.saucecode.filtr.core.filters.BlurFilterMulti;
+import com.saucecode.filtr.core.filters.BlurFilterSingle;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -106,20 +107,10 @@ public class MainWindow extends Application {
 	}
 
 	private Menu initMenuFilter() {
-		BlurFilter blurFilter = new BlurFilter();
-		MenuItem filterBlur = new MenuItem(blurFilter.getName());
-		statusBar.progressProperty().addListener(e -> {
-			// TODO
-		});
-		filterBlur.setOnAction(e -> imgur.apply(blurFilter));
-
-		filterMenuItems.add(filterBlur);
-
-		// TODO add other filters here
-
-		filterMenuItems.forEach(e -> e.setDisable(true));
-
-		return new Menu("Fi_lter", null, filterBlur);
+		FilterMenuItem blurMulti = new FilterMenuItem(new BlurFilterMulti(), imgur);
+		FilterMenuItem blurSingle = new FilterMenuItem(new BlurFilterSingle(), imgur);
+		
+		return new Menu("Fi_lter", null, blurMulti, blurSingle);
 	}
 
 	private Menu initMenuEdit() {

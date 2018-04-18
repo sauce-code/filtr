@@ -4,8 +4,13 @@ import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.paint.Color;
 
-public class BlurFilter extends MultiThreadedFilter {
+public class BlurFilterMulti extends MultiThreadedFilter {
 	
+	@Override
+	public String getName() {
+		return "Blur Multi Threaded";
+	}
+
 	@Override
 	protected void computePixel(int x, int y, PixelReader pr, PixelWriter pw) {
 		double red = pr.getColor(x, y).getRed() * 0.2
@@ -29,11 +34,6 @@ public class BlurFilter extends MultiThreadedFilter {
 				+ pr.getColor(x + 1, y).getOpacity() * 0.2
 				+ pr.getColor(x, y + 1).getOpacity() * 0.2;
 		pw.setColor(x, y, new Color(red, green, blue, opacity));
-	}
-
-	@Override
-	public String getName() {
-		return "Blur";
 	}
 
 }

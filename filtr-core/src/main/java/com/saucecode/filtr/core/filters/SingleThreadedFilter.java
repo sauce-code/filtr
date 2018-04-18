@@ -11,6 +11,11 @@ public abstract class SingleThreadedFilter implements Filter {
 	protected SimpleDoubleProperty progress;
 
 	@Override
+	public void setProgress(SimpleDoubleProperty progress) {
+		this.progress = progress;
+	}
+
+	@Override
 	public Image filter(Image image) {
 		progress.set(0.0);
 		PixelReader pr = image.getPixelReader();
@@ -30,11 +35,6 @@ public abstract class SingleThreadedFilter implements Filter {
 		return wi;
 	}
 
-	@Override
-	public void setProgress(SimpleDoubleProperty progress) {
-		this.progress = progress;
-	}
-	
 	protected abstract void computePixel(int x, int y, PixelReader pr, PixelWriter pw);
 
 }

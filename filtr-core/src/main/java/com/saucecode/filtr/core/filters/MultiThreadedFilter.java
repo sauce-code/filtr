@@ -48,6 +48,8 @@ public abstract class MultiThreadedFilter implements Filter {
 						progress.set(progress.doubleValue() + 1.0 / height);
 
 					}
+					System.out.println("Thread "
+							+ Thread.currentThread().getName() + " ended");
 					latch.countDown();
 				}
 
