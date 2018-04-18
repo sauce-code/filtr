@@ -93,24 +93,24 @@ public class MainWindow extends Application {
 
 	private final Clipboard clipboard = Clipboard.getSystemClipboard();
 
-	private List<MenuItem> filterMenuItems = new LinkedList<MenuItem>();
+	private final List<MenuItem> filterMenuItems = new LinkedList<MenuItem>();
 
-	private List<MenuItem> taskMenuItems = new LinkedList<MenuItem>();
+	private final List<MenuItem> taskMenuItems = new LinkedList<MenuItem>();
 
 	private Stage busyDialog;
 
 	private Menu initMenuHelp() {
-		MenuItem about = new MenuItem("A_bout");
+		final MenuItem about = new MenuItem("A_bout");
 		about.setOnAction(e -> new AboutAlert(logo).showAndWait());
 
 		return new Menu("_Help", null, about);
 	}
 
 	private Menu initSettingsMenu() {
-		MenuItem threads = new MenuItem("Threads...");
+		final MenuItem threads = new MenuItem("Threads...");
 		threads.setOnAction(e -> {
-			ThreadDialog dialog = new ThreadDialog(imgur, logo);
-			Integer ret = dialog.showAndWait().get();
+			final ThreadDialog dialog = new ThreadDialog(imgur, logo);
+			final Integer ret = dialog.showAndWait().get();
 			if (ret != -1) {
 				imgur.setThreadCount(ret);
 			}
@@ -119,8 +119,8 @@ public class MainWindow extends Application {
 	}
 
 	private Menu initMenuFilter() {
-		FilterMenuItem blurMulti = new FilterMenuItem(new BlurFilterMulti(), imgur);
-		FilterMenuItem blurSingle = new FilterMenuItem(new BlurFilterSingle(), imgur);
+		final FilterMenuItem blurMulti = new FilterMenuItem(new BlurFilterMulti(), imgur);
+		final FilterMenuItem blurSingle = new FilterMenuItem(new BlurFilterSingle(), imgur);
 
 		return new Menu("Fi_lter", null, blurMulti, blurSingle);
 	}
@@ -145,10 +145,10 @@ public class MainWindow extends Application {
 		copy = new MenuItem("_Copy", new ImageView(iconCopy));
 		copy.setAccelerator(KeyCombination.keyCombination("Ctrl + C"));
 		copy.setOnAction(e -> {
-			ClipboardContent content = new ClipboardContent();
+			final ClipboardContent content = new ClipboardContent();
 			content.putImage(imgur.getImage().get());
 			clipboard.setContent(content);
-			Alert alert = new Alert(AlertType.INFORMATION);
+			final Alert alert = new Alert(AlertType.INFORMATION);
 			alert.setHeaderText(null);
 			alert.setContentText("Image has been copied to clipboard.");
 			alert.showAndWait();
@@ -168,25 +168,25 @@ public class MainWindow extends Application {
 	}
 
 	private Menu initMenuFile() {
-		MenuItem open = new MenuItem("_Open...");
+		final MenuItem open = new MenuItem("_Open...");
 		open.setAccelerator(KeyCombination.keyCombination("Ctrl + O"));
 		open.setOnAction(e -> {
-			FileChooser fc = new FileChooser();
+			final FileChooser fc = new FileChooser();
 			fc.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("All Images", "*.*"),
 					new FileChooser.ExtensionFilter("JPG", "*.jpg"), new FileChooser.ExtensionFilter("GIF", "*.gif"),
 					new FileChooser.ExtensionFilter("BMP", "*.bmp"), new FileChooser.ExtensionFilter("PNG", "*.png"));
 			// fc.setInitialDirectory(new File(System.getProperty("user.dir")));
 			try {
-				File input = fc.showOpenDialog(primaryStage);
+				final File input = fc.showOpenDialog(primaryStage);
 				if (input != null) {
-					BufferedImage temp = ImageIO.read(input);
+					final BufferedImage temp = ImageIO.read(input);
 					if (temp == null) {
 						new ErrorAlert("The selected file is no valid image!").showAndWait();
 					} else {
 						imgur.setImage(SwingFXUtils.toFXImage(temp, null));
 					}
 				}
-			} catch (IOException ex) {
+			} catch (final IOException ex) {
 				new ErrorAlert(ex.getMessage()).showAndWait();
 			}
 		});
@@ -194,22 +194,22 @@ public class MainWindow extends Application {
 
 		saveAs = new MenuItem("Save _As...", new ImageView(iconSave));
 		saveAs.setOnAction(e -> {
-			FileChooser fc = new FileChooser();
+			final FileChooser fc = new FileChooser();
 			fc.setInitialFileName("*.png");
 			fc.getExtensionFilters().add(new ExtensionFilter("PNG", "*.png"));
-			File outputfile = fc.showSaveDialog(primaryStage);
+			final File outputfile = fc.showSaveDialog(primaryStage);
 			if (outputfile != null) {
 				try {
-					BufferedImage temp = SwingFXUtils.fromFXImage(imgur.getImage().get(), null);
+					final BufferedImage temp = SwingFXUtils.fromFXImage(imgur.getImage().get(), null);
 					ImageIO.write(temp, "png", outputfile);
-				} catch (IOException ex) {
+				} catch (final IOException ex) {
 					new ErrorAlert(ex.getMessage()).showAndWait();
 				}
 			}
 		});
 		taskMenuItems.add(saveAs);
 
-		MenuItem exit = new MenuItem("E_xit");
+		final MenuItem exit = new MenuItem("E_xit");
 		exit.setAccelerator(KeyCombination.keyCombination("Alt + F4"));
 		exit.setOnAction(e -> Platform.exit());
 
@@ -218,11 +218,11 @@ public class MainWindow extends Application {
 
 	/**
 	 * Initializes the menu bar and returns it.
-	 * 
+	 *
 	 * @return the initialized menubar
 	 */
 	private MenuBar initMenuBar() {
-		MenuBar menuBar = new MenuBar(initMenuFile(), initMenuEdit(), initMenuFilter(), initSettingsMenu(),
+		final MenuBar menuBar = new MenuBar(initMenuFile(), initMenuEdit(), initMenuFilter(), initSettingsMenu(),
 				initMenuHelp());
 		menuBar.setUseSystemMenuBar(true);
 		menuBar.useSystemMenuBarProperty().set(true);
@@ -232,22 +232,22 @@ public class MainWindow extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 
-		ProgressBar progress = new ProgressBar();
+		final ProgressBar progress = new ProgressBar();
 		progress.setMinWidth(300.0);
 		progress.setMinHeight(30.0);
 		imgur.getProgress().addListener(e -> Platform.runLater(() -> {
-			double currentProgress = imgur.getProgress().get();
+			final double currentProgress = imgur.getProgress().get();
 			progress.setProgress(currentProgress);
 			busyDialog.setTitle((int) (currentProgress * 100) + "%");
 		}));
 
-		Button cancel = new Button("Cancel");
+		final Button cancel = new Button("Cancel");
 		cancel.setOnAction(e -> {
 			imgur.stop();
 		});
-		VBox vBox = new VBox(progress, cancel);
+		final VBox vBox = new VBox(progress, cancel);
 		vBox.setAlignment(Pos.CENTER);
-		Scene dialogScene = new Scene(vBox);
+		final Scene dialogScene = new Scene(vBox);
 		busyDialog = new Stage(StageStyle.DECORATED);
 		busyDialog.getIcons().add(logo);
 		busyDialog.setScene(dialogScene);
@@ -271,7 +271,7 @@ public class MainWindow extends Application {
 		this.primaryStage = primaryStage;
 
 		imageView = new ImageView();
-		ScrollPane scrollPane = new ScrollPane(imageView);
+		final ScrollPane scrollPane = new ScrollPane(imageView);
 		scrollPane.setPannable(true);
 
 		statusBar = new StatusBar();
@@ -279,11 +279,11 @@ public class MainWindow extends Application {
 			Platform.runLater(() -> statusBar.setProgress(imgur.getProgress().get()));
 		});
 
-		BorderPane border = new BorderPane(scrollPane);
+		final BorderPane border = new BorderPane(scrollPane);
 		border.setTop(initMenuBar());
 		border.setBottom(statusBar);
 
-		Scene scene = new Scene(border);
+		final Scene scene = new Scene(border);
 		scene.getStylesheets().add(Paths.CSS);
 		primaryStage.setTitle(MetaInfo.TITLE);
 		primaryStage.setScene(scene);

@@ -1,6 +1,5 @@
 package com.saucecode.filtr.gui;
 
-import com.saucecode.filtr.core.Imgur;
 import com.saucecode.filtr.core.Logic;
 
 import javafx.application.Platform;
@@ -16,12 +15,12 @@ public class ThreadDialog extends Dialog<Integer> {
 		setTitle("filtr Settings - Threads");
 		setHeaderText("Maximum Number of Threads:");
 		getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-		Stage stage = (Stage) getDialogPane().getScene().getWindow();
+		final Stage stage = (Stage) getDialogPane().getScene().getWindow();
 		stage.getIcons().add(logo);
 
-		Slider slider = new Slider();
-		slider.setMin(Imgur.MIN_THREAD_COUNT);
-		slider.setMax(Imgur.MAX_THREAD_COUNT);
+		final Slider slider = new Slider();
+		slider.setMin(Logic.MIN_THREAD_COUNT);
+		slider.setMax(Logic.MAX_THREAD_COUNT);
 		slider.setValue(logic.getThreadCount().get());
 		slider.setShowTickLabels(true);
 		slider.setShowTickMarks(true);
@@ -31,15 +30,15 @@ public class ThreadDialog extends Dialog<Integer> {
 				.addListener((obs, oldval, newVal) -> slider.setValue((int) Math.round(newVal.doubleValue())));
 
 		getDialogPane().setContent(slider);
-		
+
 		Platform.runLater(() -> slider.requestFocus());
-		
+
 		setResultConverter(dialogButton -> {
-		    if (dialogButton == ButtonType.OK) {
-		        return (int) Math.round(slider.valueProperty().get());
-		    }
-		    return -1;
+			if (dialogButton == ButtonType.OK) {
+				return (int) Math.round(slider.valueProperty().get());
+			}
+			return -1;
 		});
 	}
-	
+
 }

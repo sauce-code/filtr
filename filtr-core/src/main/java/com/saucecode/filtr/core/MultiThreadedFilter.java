@@ -12,21 +12,20 @@ import javafx.scene.image.WritableImage;
 public abstract class MultiThreadedFilter implements Filter {
 
 	protected SimpleDoubleProperty progress;
-	
+
 	protected int threadCount;
-	
+
 	@Override
 	public void setProgress(SimpleDoubleProperty progress) {
 		this.progress = progress;
 	}
-	
+
 	@Override
 	public Image filter(Image image) {
 		progress.set(0.0);
-		PixelReader pr = image.getPixelReader();
-		WritableImage wi = new WritableImage((int) image.getWidth(),
-				(int) image.getHeight());
-		PixelWriter pw = wi.getPixelWriter();
+		final PixelReader pr = image.getPixelReader();
+		final WritableImage wi = new WritableImage((int) image.getWidth(), (int) image.getHeight());
+		final PixelWriter pw = wi.getPixelWriter();
 		if (Thread.currentThread().isInterrupted()) {
 			return image;
 		}
@@ -37,34 +36,26 @@ public abstract class MultiThreadedFilter implements Filter {
 			final int next = (int) (image.getHeight() * (p + 1) / threadCount);
 			final int width = (int) image.getWidth();
 			final int height = (int) image.getHeight();
-			threads.add(new Thread(new Runnable() {
-				
-				@Override
-				public void run() {
-					System.out.println("Thread "
-							+ Thread.currentThread().getName() + " started");
-					for (int y = (current == 0 ? 1 : current); y < next
-							- 1; y++) {
-						if (Thread.currentThread().isInterrupted()) {
-							break;
-						}
-						for (int x = 1; x < width - 1; x++) {
-							computePixel(x, y, pr, pw);
-						}
-						progress.set(progress.doubleValue() + 1.0 / height);
-
+			threads.add(new Thread(() -> {
+				System.out.println("Thread " + Thread.currentThread().getName() + " started");
+				for (int y = (current == 0 ? 1 : current); y < next - 1; y++) {
+					if (Thread.currentThread().isInterrupted()) {
+						break;
 					}
-					System.out.println("Thread "
-							+ Thread.currentThread().getName() + " ended");
-					latch.countDown();
-				}
+					for (int x = 1; x < width - 1; x++) {
+						computePixel(x, y, pr, pw);
+					}
+					progress.set(progress.doubleValue() + 1.0 / height);
 
+				}
+				System.out.println("Thread " + Thread.currentThread().getName() + " ended");
+				latch.countDown();
 			}));
 		}
 		threads.forEach(Thread::start);
 		try {
 			latch.await();
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			System.out.println("main thread interrupted");
 			threads.forEach(Thread::interrupt);
 			return image;
@@ -72,12 +63,12 @@ public abstract class MultiThreadedFilter implements Filter {
 		progress.set(1.0);
 		return wi;
 	}
-	
+
 	protected abstract void computePixel(int x, int y, PixelReader pr, PixelWriter pw);
-	
+
 	@Override
 	public void setThreadCount(int threadCount) {
 		this.threadCount = threadCount;
 	}
-	
+
 }

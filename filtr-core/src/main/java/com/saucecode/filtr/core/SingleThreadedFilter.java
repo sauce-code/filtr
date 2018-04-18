@@ -7,7 +7,7 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 
 public abstract class SingleThreadedFilter implements Filter {
-	
+
 	protected SimpleDoubleProperty progress;
 
 	@Override
@@ -18,15 +18,14 @@ public abstract class SingleThreadedFilter implements Filter {
 	@Override
 	public Image filter(Image image) {
 		progress.set(0.0);
-		PixelReader pr = image.getPixelReader();
-		WritableImage wi = new WritableImage((int) image.getWidth(),
-				(int) image.getHeight());
-		PixelWriter pw = wi.getPixelWriter();
+		final PixelReader pr = image.getPixelReader();
+		final WritableImage wi = new WritableImage((int) image.getWidth(), (int) image.getHeight());
+		final PixelWriter pw = wi.getPixelWriter();
 		for (int x = 1; x < image.getWidth() - 1; x++) {
 			if (Thread.currentThread().isInterrupted()) {
-				  return image;
+				return image;
 			}
-			progress.set((double) x / image.getWidth()); 
+			progress.set(x / image.getWidth());
 			for (int y = 1; y < image.getHeight() - 1; y++) {
 				computePixel(x, y, pr, pw);
 			}
@@ -36,7 +35,8 @@ public abstract class SingleThreadedFilter implements Filter {
 	}
 
 	protected abstract void computePixel(int x, int y, PixelReader pr, PixelWriter pw);
-	
+
+	@Override
 	public void setThreadCount(int threadCount) {
 		// XXX
 	}

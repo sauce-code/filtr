@@ -2,7 +2,7 @@ package com.saucecode.filtr.gui;
 
 /**
  * Describes useful meta information for the GUI.
- * 
+ *
  * @author Torben Kr&uuml;ger
  *
  */

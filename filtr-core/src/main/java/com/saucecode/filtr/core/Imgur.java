@@ -8,13 +8,13 @@ import javafx.concurrent.Task;
 import javafx.scene.image.Image;
 
 public class Imgur implements Logic {
-	
+
 	private final SimpleObjectProperty<Image> image = new SimpleObjectProperty<>();
 
 	private final SimpleBooleanProperty busy = new SimpleBooleanProperty(false);
-	
+
 	private final SimpleDoubleProperty progress = new SimpleDoubleProperty(0.0);
-	
+
 	private final SimpleIntegerProperty threadCount = new SimpleIntegerProperty(MAX_THREAD_COUNT);
 
 	private Thread thread;
@@ -33,21 +33,19 @@ public class Imgur implements Logic {
 	public SimpleBooleanProperty isBusy() {
 		return busy;
 	}
-	
+
 	@Override
 	public void apply(Filter filter) {
 		if (image == null) {
-			throw new IllegalStateException(
-					"There is no image, can't apply filter " + filter.getName());
+			throw new IllegalStateException("There is no image, can't apply filter " + filter.getName());
 		}
 		if (busy.get()) {
-			throw new IllegalStateException(
-					"Busy right now, can't apply filter " + filter.getName());
+			throw new IllegalStateException("Busy right now, can't apply filter " + filter.getName());
 		}
 		busy.set(true);
 		filter.setProgress(progress);
 		filter.setThreadCount(threadCount.get());
-		Task<Void> task = new Task<Void>() {
+		final Task<Void> task = new Task<Void>() {
 			@Override
 			protected Void call() throws Exception {
 				image.set(filter.filter(image.get()));
@@ -68,7 +66,7 @@ public class Imgur implements Logic {
 	public void stop() {
 		thread.interrupt();
 	}
-	
+
 	private void end() {
 		busy.set(false);
 		progress.set(0.0);
