@@ -1,5 +1,7 @@
 package com.saucecode.filtr.core.filters;
 
+import com.saucecode.filtr.core.SingleThreadedFilter;
+
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.paint.Color;

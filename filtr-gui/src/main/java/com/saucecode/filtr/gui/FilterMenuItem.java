@@ -1,7 +1,7 @@
 package com.saucecode.filtr.gui;
 
+import com.saucecode.filtr.core.Filter;
 import com.saucecode.filtr.core.Logic;
-import com.saucecode.filtr.core.filters.Filter;
 
 import javafx.scene.control.MenuItem;
 

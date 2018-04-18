@@ -1,4 +1,4 @@
-package com.saucecode.filtr.core.filters;
+package com.saucecode.filtr.core;
 
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.image.Image;

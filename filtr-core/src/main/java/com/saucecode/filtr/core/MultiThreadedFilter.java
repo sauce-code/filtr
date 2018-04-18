@@ -1,4 +1,4 @@
-package com.saucecode.filtr.core.filters;
+package com.saucecode.filtr.core;
 
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
