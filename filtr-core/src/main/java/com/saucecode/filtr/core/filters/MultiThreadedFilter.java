@@ -1,5 +1,6 @@
 package com.saucecode.filtr.core.filters;
 
+import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
 import javafx.beans.property.SimpleDoubleProperty;
@@ -29,19 +30,23 @@ public abstract class MultiThreadedFilter implements Filter {
 		}
 		int processors = Runtime.getRuntime().availableProcessors() + 1;
 		final CountDownLatch latch = new CountDownLatch(processors);
+		final ArrayList<Thread> threads = new ArrayList<>(processors);
 		for (int p = 0; p < processors; p++) {
 			final int current = (int) (image.getHeight() * p / processors);
 			final int next = (int) (image.getHeight() * (p + 1) / processors);
 			final int width = (int) image.getWidth();
 			final int height = (int) image.getHeight();
-			new Thread(new Runnable() {
-
+			threads.add(new Thread(new Runnable() {
+				
 				@Override
 				public void run() {
 					System.out.println("Thread "
 							+ Thread.currentThread().getName() + " started");
 					for (int y = (current == 0 ? 1 : current); y < next
 							- 1; y++) {
+						if (Thread.currentThread().isInterrupted()) {
+							break;
+						}
 						for (int x = 1; x < width - 1; x++) {
 							computePixel(x, y, pr, pw);
 						}
@@ -53,13 +58,15 @@ public abstract class MultiThreadedFilter implements Filter {
 					latch.countDown();
 				}
 
-			}).start();
+			}));
 		}
+		threads.forEach(Thread::start);
 		try {
 			latch.await();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("main thread interrupted");
+			threads.forEach(Thread::interrupt);
+			return image;
 		}
 		progress.set(1.0);
 		return wi;
