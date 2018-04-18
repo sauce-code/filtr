@@ -19,4 +19,6 @@ public interface Logic {
 	
 	public SimpleDoubleProperty getProgress();
 	
+	public void stop();
+	
 }

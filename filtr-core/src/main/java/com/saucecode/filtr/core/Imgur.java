@@ -5,9 +5,12 @@ import com.saucecode.filtr.core.filters.Filter;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.concurrent.Task;
 import javafx.scene.image.Image;
 
 public class Imgur implements Logic {
+	
+	private Thread thread;
 
 	private final SimpleObjectProperty<Image> image = new SimpleObjectProperty<>();
 
@@ -38,13 +41,31 @@ public class Imgur implements Logic {
 		}
 		busy.set(true);
 		filter.setProgress(progress);
-		image.set(filter.filter(image.get()));
-		busy.set(false);
+		Task<Void> task = new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+				image.set(filter.filter(image.get()));
+				end();
+				return null;
+			}
+		};
+		thread = new Thread(task);
+		thread.start();
 	}
 
 	@Override
 	public SimpleDoubleProperty getProgress() {
 		return progress;
+	}
+
+	@Override
+	public void stop() {
+		thread.interrupt();
+	}
+	
+	private void end() {
+		busy.set(false);
+		progress.set(0.0);
 	}
 
 }

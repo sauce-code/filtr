@@ -26,6 +26,9 @@ public class BlurFilter implements Filter {
 				(int) image.getHeight());
 		PixelWriter pw = wi.getPixelWriter();
 		for (int x = 1; x < image.getWidth() - 1; x++) {
+			if (Thread.currentThread().isInterrupted()) {
+				  return image;
+			}
 			progress.set((double) x / image.getWidth()); 
 			for (int y = 1; y < image.getHeight() - 1; y++) {
 				double red = pr.getColor(x, y).getRed() * 0.2

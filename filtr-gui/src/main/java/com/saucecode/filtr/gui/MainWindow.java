@@ -15,7 +15,6 @@ import com.saucecode.filtr.core.filters.BlurFilter;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -99,8 +98,6 @@ public class MainWindow extends Application {
 
 	private Stage busyDialog;
 
-	private ProgressBar progressBar;
-
 	private Menu initMenuHelp() {
 		MenuItem about = new MenuItem("A_bout");
 		about.setOnAction(e -> new AboutAlert(logo).showAndWait());
@@ -112,39 +109,9 @@ public class MainWindow extends Application {
 		BlurFilter blurFilter = new BlurFilter();
 		MenuItem filterBlur = new MenuItem(blurFilter.getName());
 		statusBar.progressProperty().addListener(e -> {
-
+			// TODO
 		});
-		filterBlur.setOnAction(e -> {
-
-			// Platform.runLater(() -> imgur.apply(blurFilter));
-
-			Task<Void> task = new Task<Void>() {
-				@Override
-				protected Void call() throws Exception {
-					imgur.apply(blurFilter);
-					return null;
-				}
-			};
-			Thread thread = new Thread(task);
-			// thread.setDaemon(true);
-			thread.start();
-
-			// Task<Void> task = new Task<Void>() {
-			// @Override public Void call() {
-			// final int max = 1000000;
-			// for (int i=1; i<=max; i++) {
-			// if (isCancelled()) {
-			// break;
-			// }
-			// updateProgress(i, max);
-			// }
-			// return null;
-			// }
-			// };
-			// progressBar.progressProperty().bind(task.progressProperty());
-			// new Thread(task).start();
-
-		});
+		filterBlur.setOnAction(e -> imgur.apply(blurFilter));
 
 		filterMenuItems.add(filterBlur);
 
@@ -271,7 +238,7 @@ public class MainWindow extends Application {
 
 		ProgressBar progress = new ProgressBar();
 		progress.setMinWidth(300.0);
-		progress.setMinHeight(40.0);
+		progress.setMinHeight(30.0);
 		imgur.getProgress().addListener(e -> Platform.runLater(() -> {
 			double currentProgress = imgur.getProgress().get();
 			progress.setProgress(currentProgress);
@@ -280,7 +247,7 @@ public class MainWindow extends Application {
 
 		Button cancel = new Button("Cancel");
 		cancel.setOnAction(e -> {
-			// TODO
+			imgur.stop();
 		});
 		VBox vBox = new VBox(progress, cancel);
 		vBox.setAlignment(Pos.CENTER);
@@ -290,6 +257,7 @@ public class MainWindow extends Application {
 		busyDialog.setScene(dialogScene);
 		busyDialog.initOwner(primaryStage);
 		busyDialog.initModality(Modality.APPLICATION_MODAL);
+		busyDialog.setOnCloseRequest(e -> imgur.stop());
 
 		imgur.getImage().addListener(e -> Platform.runLater(() -> {
 			imageView.setImage(imgur.getImage().get());
