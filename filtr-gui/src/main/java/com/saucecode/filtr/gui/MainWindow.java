@@ -17,15 +17,12 @@ import com.saucecode.filtr.core.filters.BlurFilterSingle;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.image.Image;
@@ -34,12 +31,9 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 public class MainWindow extends Application {
 
@@ -93,11 +87,7 @@ public class MainWindow extends Application {
 
 	private final Clipboard clipboard = Clipboard.getSystemClipboard();
 
-	private final List<MenuItem> filterMenuItems = new LinkedList<MenuItem>();
-
 	private final List<MenuItem> taskMenuItems = new LinkedList<MenuItem>();
-
-	private Stage busyDialog;
 
 	private Menu initMenuHelp() {
 		final MenuItem about = new MenuItem("A_bout");
@@ -232,41 +222,11 @@ public class MainWindow extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 
-		final ProgressBar progress = new ProgressBar();
-		progress.setMinWidth(300.0);
-		progress.setMinHeight(30.0);
-		imgur.getProgress().addListener(e -> Platform.runLater(() -> {
-			final double currentProgress = imgur.getProgress().get();
-			progress.setProgress(currentProgress);
-			busyDialog.setTitle((int) (currentProgress * 100) + "%");
-		}));
-
-		final Button cancel = new Button("Cancel");
-		cancel.setOnAction(e -> {
-			imgur.stop();
-		});
-		final VBox vBox = new VBox(progress, cancel);
-		vBox.setAlignment(Pos.CENTER);
-		final Scene dialogScene = new Scene(vBox);
-		busyDialog = new Stage(StageStyle.DECORATED);
-		busyDialog.getIcons().add(logo);
-		busyDialog.setScene(dialogScene);
-		busyDialog.initModality(Modality.APPLICATION_MODAL);
-		busyDialog.setResizable(false);
-		busyDialog.setOnCloseRequest(e -> imgur.stop());
-
+		new ProgressStage(imgur, logo);
+		
 		imgur.getImage().addListener(e -> Platform.runLater(() -> {
 			imageView.setImage(imgur.getImage().get());
-			filterMenuItems.forEach(e2 -> e2.setDisable(imgur.getImage().get() == null));
 		}));
-		imgur.isBusy().addListener(e -> {
-			if (imgur.isBusy().get()) {
-				Platform.runLater(() -> busyDialog.show());
-
-			} else {
-				Platform.runLater(() -> busyDialog.close());
-			}
-		});
 
 		this.primaryStage = primaryStage;
 
