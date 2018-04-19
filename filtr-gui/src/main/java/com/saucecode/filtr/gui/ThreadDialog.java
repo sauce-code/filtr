@@ -42,6 +42,7 @@ public class ThreadDialog extends Dialog<Integer> {
 			}
 			return -1;
 		});
+		
 	}
 
 }
