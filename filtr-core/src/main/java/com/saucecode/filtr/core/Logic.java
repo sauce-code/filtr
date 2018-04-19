@@ -11,7 +11,11 @@ public interface Logic {
 	public static final int MIN_THREAD_COUNT = 1;
 
 	public static final int MAX_THREAD_COUNT = Runtime.getRuntime().availableProcessors() + 1;
-
+	
+	public static final int MAX_UNDO_COUNT = 10;
+	
+	public static final int MAX_REDO_COUNT = 10;
+	
 	public SimpleObjectProperty<Image> getImage();
 
 	public void setImage(Image image);
