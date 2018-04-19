@@ -93,4 +93,28 @@ public class Imgur implements Logic {
 		return (image != null) && !busy.get();
 	}
 
+	@Override
+	public SimpleBooleanProperty isUndoPossible() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void undo() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public SimpleBooleanProperty isRedoPossible() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void redo() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

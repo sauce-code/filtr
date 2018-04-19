@@ -29,5 +29,13 @@ public interface Logic {
 	public void setThreadCount(Integer threadCount);
 
 	public boolean isFilterApplyable();
+	
+	public SimpleBooleanProperty isUndoPossible();
+	
+	public void undo();
+	
+	public SimpleBooleanProperty isRedoPossible();
+	
+	public void redo();
 
 }
