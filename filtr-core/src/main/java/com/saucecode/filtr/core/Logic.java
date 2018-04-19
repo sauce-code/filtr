@@ -22,7 +22,7 @@ public interface Logic {
 
 	public SimpleDoubleProperty getProgress();
 
-	public void stop();
+	public void interrupt();
 
 	public SimpleIntegerProperty getThreadCount();
 

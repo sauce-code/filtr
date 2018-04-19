@@ -63,7 +63,7 @@ public class Imgur implements Logic {
 	}
 
 	@Override
-	public void stop() {
+	public void interrupt() {
 		thread.interrupt();
 	}
 

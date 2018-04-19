@@ -21,7 +21,7 @@ public class ProgressStage extends Stage {
 		getIcons().add(logo);
 		initModality(Modality.APPLICATION_MODAL);
 		setResizable(false);
-		setOnCloseRequest(e -> logic.stop());
+		setOnCloseRequest(e -> logic.interrupt());
 		
 		final ProgressBar progress = new ProgressBar();
 		progress.setMinWidth(300.0);
@@ -34,7 +34,7 @@ public class ProgressStage extends Stage {
 
 		final Button cancel = new Button("Cancel");
 		cancel.setOnAction(e -> {
-			logic.stop();
+			logic.interrupt();
 		});
 		
 		final VBox vBox = new VBox(progress, cancel);
