@@ -12,6 +12,9 @@ import javafx.stage.Stage;
 public class ThreadDialog extends Dialog<Integer> {
 
 	public ThreadDialog(Logic logic, Image logo) {
+		
+		super();
+		
 		setTitle("filtr Settings - Threads");
 		setHeaderText("Maximum Number of Threads:");
 		getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
