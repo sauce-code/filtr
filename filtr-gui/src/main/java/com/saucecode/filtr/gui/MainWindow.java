@@ -108,11 +108,11 @@ public class MainWindow extends Application {
 		return new Menu("_Settings", null, threads);
 	}
 
-	private Menu initMenuFilter() {
+	private Menu initMenuFilters() {
 		final FilterMenuItem blurMulti = new FilterMenuItem(new BlurFilterMulti(), imgur);
 		final FilterMenuItem blurSingle = new FilterMenuItem(new BlurFilterSingle(), imgur);
 
-		return new Menu("Fi_lter", null, blurMulti, blurSingle);
+		return new Menu("Fi_lters", null, blurMulti, blurSingle);
 	}
 
 	private Menu initMenuEdit() {
@@ -212,7 +212,7 @@ public class MainWindow extends Application {
 	 * @return the initialized menubar
 	 */
 	private MenuBar initMenuBar() {
-		final MenuBar menuBar = new MenuBar(initMenuFile(), initMenuEdit(), initMenuFilter(), initSettingsMenu(),
+		final MenuBar menuBar = new MenuBar(initMenuFile(), initMenuEdit(), initMenuFilters(), initSettingsMenu(),
 				initMenuHelp());
 		menuBar.setUseSystemMenuBar(true);
 		menuBar.useSystemMenuBarProperty().set(true);
