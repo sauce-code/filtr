@@ -48,7 +48,7 @@ public class Imgur implements Logic {
 		final Task<Void> task = new Task<Void>() {
 			@Override
 			protected Void call() throws Exception {
-				System.out.println("filter parent " + Thread.currentThread().getName() + " startet");
+				System.out.println("filter parent " + Thread.currentThread().getName() + " started");
 				image.set(filter.filter(image.get()));
 				end();
 				System.out.println("filter parent " + Thread.currentThread().getName() + " ended");

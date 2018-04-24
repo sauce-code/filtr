@@ -37,7 +37,7 @@ public abstract class MultiThreadedFilter implements Filter {
 			final int width = (int) image.getWidth();
 			final int height = (int) image.getHeight();
 			threads.add(new Thread(() -> {
-				System.out.println("filter child " + Thread.currentThread().getName() + " startet");
+				System.out.println("filter child " + Thread.currentThread().getName() + " started");
 				for (int y = (current == 0 ? 1 : current); y < next - 1; y++) {
 					if (Thread.currentThread().isInterrupted()) {
 						break;
@@ -48,7 +48,8 @@ public abstract class MultiThreadedFilter implements Filter {
 					progress.set(progress.doubleValue() + 1.0 / height);
 
 				}
-				System.out.println("filter child " + Thread.currentThread().getName() + " ended");
+				System.out.println("filter child " + Thread.currentThread().getName()
+						+ (Thread.currentThread().isInterrupted() ? " interrupted" : " ended"));
 				latch.countDown();
 			}));
 		}
