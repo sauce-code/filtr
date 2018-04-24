@@ -1,10 +1,17 @@
 package com.saucecode.filtr.core;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 
 public class Imgur implements Logic {
@@ -117,6 +124,16 @@ public class Imgur implements Logic {
 	public void redo() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void read(File file) throws IOException, IllegalImageFormatException {
+			final BufferedImage bufferedImage = ImageIO.read(file);
+			if (bufferedImage == null) {
+				throw new IllegalImageFormatException("The selected file is no valid image!");
+			} else {
+				setImage(SwingFXUtils.toFXImage(bufferedImage, null));
+			}
 	}
 
 }

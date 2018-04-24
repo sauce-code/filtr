@@ -166,18 +166,13 @@ public class MainWindow extends Application {
 					new FileChooser.ExtensionFilter("JPG", "*.jpg"), new FileChooser.ExtensionFilter("GIF", "*.gif"),
 					new FileChooser.ExtensionFilter("BMP", "*.bmp"), new FileChooser.ExtensionFilter("PNG", "*.png"));
 			// fc.setInitialDirectory(new File(System.getProperty("user.dir")));
-			try {
-				final File input = fc.showOpenDialog(primaryStage);
-				if (input != null) {
-					final BufferedImage temp = ImageIO.read(input);
-					if (temp == null) {
-						new ErrorAlert("The selected file is no valid image!").showAndWait();
-					} else {
-						imgur.setImage(SwingFXUtils.toFXImage(temp, null));
-					}
+			final File input = fc.showOpenDialog(primaryStage);
+			if (input != null) {
+				try {
+					imgur.read(input);
+				} catch (Exception ex) {
+					new ErrorAlert(ex.getMessage()).showAndWait();
 				}
-			} catch (final IOException ex) {
-				new ErrorAlert(ex.getMessage()).showAndWait();
 			}
 		});
 		taskMenuItems.add(open);
@@ -223,7 +218,7 @@ public class MainWindow extends Application {
 	public void start(Stage primaryStage) throws Exception {
 
 		new ProgressStage(imgur, logo);
-		
+
 		imgur.getImage().addListener(e -> Platform.runLater(() -> {
 			imageView.setImage(imgur.getImage().get());
 		}));
