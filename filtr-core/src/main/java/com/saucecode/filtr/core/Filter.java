@@ -70,5 +70,24 @@ public abstract class Filter {
 	public void setThreadCount(int threadCount) {
 		this.threadCount = threadCount;
 	}
+	
+	protected double getColor(int x, int y, PixelReader pr, Colors color) {
+		switch (color) {
+		case RED:
+			return pr.getColor(x, y).getRed();
+		case GREEN:
+			return pr.getColor(x, y).getGreen();
+		case BLUE:
+			return pr.getColor(x, y).getBlue();
+		case OPACITY:
+			return pr.getColor(x, y).getOpacity();
+		default:
+			throw new InternalError();
+		}
+	}
+
+	protected enum Colors {
+		RED, GREEN, BLUE, OPACITY;
+	};
 
 }
