@@ -10,7 +10,7 @@ public class BlurFilter extends Filter {
 
 	@Override
 	public String getName() {
-		return "Blur Multi Threaded";
+		return "Blur";
 	}
 
 	@Override
