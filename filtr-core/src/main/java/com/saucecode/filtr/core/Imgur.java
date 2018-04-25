@@ -136,4 +136,10 @@ public class Imgur implements Logic {
 			}
 	}
 
+	@Override
+	public void save(File file, String formatName) throws IOException {
+		final BufferedImage temp = SwingFXUtils.fromFXImage(image.get(), null);
+		ImageIO.write(temp, formatName, file);
+	}
+
 }

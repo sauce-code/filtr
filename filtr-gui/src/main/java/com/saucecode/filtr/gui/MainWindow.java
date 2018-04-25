@@ -1,12 +1,9 @@
 package com.saucecode.filtr.gui;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.imageio.ImageIO;
 
 import org.controlsfx.control.StatusBar;
 
@@ -16,7 +13,11 @@ import com.saucecode.filtr.core.filters.BlurFilterSingle;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.embed.swing.SwingFXUtils;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -29,7 +30,10 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -68,6 +72,8 @@ public class MainWindow extends Application {
 	private final Image iconPaste = new Image(Paths.ICON_PASTE);
 
 	private final Imgur imgur = new Imgur();
+	
+	private final DoubleProperty zoomProperty = new SimpleDoubleProperty(1.0);
 
 	private MenuItem undo;
 
@@ -185,8 +191,7 @@ public class MainWindow extends Application {
 			final File outputfile = fc.showSaveDialog(primaryStage);
 			if (outputfile != null) {
 				try {
-					final BufferedImage temp = SwingFXUtils.fromFXImage(imgur.getImage().get(), null);
-					ImageIO.write(temp, "png", outputfile);
+					imgur.save(outputfile, "png");
 				} catch (final IOException ex) {
 					new ErrorAlert(ex.getMessage()).showAndWait();
 				}
@@ -217,6 +222,15 @@ public class MainWindow extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 
+		zoomProperty.addListener(new InvalidationListener() {
+            @Override
+            public void invalidated(Observable arg0) {
+                imageView.setFitWidth(imgur.getImage().get().widthProperty().get() * zoomProperty.get());
+                System.out.println(imageView.getFitWidth());
+                imageView.setFitHeight(imgur.getImage().get().heightProperty().get() * zoomProperty.get());
+            }
+        });
+		
 		new ProgressStage(imgur, logo);
 
 		imgur.getImage().addListener(e -> Platform.runLater(() -> {
@@ -228,10 +242,23 @@ public class MainWindow extends Application {
 		imageView = new ImageView();
 		final ScrollPane scrollPane = new ScrollPane(imageView);
 		scrollPane.setPannable(true);
+		scrollPane.addEventFilter(ScrollEvent.ANY, new EventHandler<ScrollEvent>() {
+            @Override
+            public void handle(ScrollEvent event) {
+                if (event.getDeltaY() > 0) {
+                    zoomProperty.set(zoomProperty.get() * 1.1);
+                } else if (event.getDeltaY() < 0) {
+                    zoomProperty.set(zoomProperty.get() / 1.1);
+                }
+            }
+        });
 
 		statusBar = new StatusBar();
 		imgur.getProgress().addListener(e -> {
 			Platform.runLater(() -> statusBar.setProgress(imgur.getProgress().get()));
+		});
+		zoomProperty.addListener(e -> {
+			Platform.runLater(() -> statusBar.setText("zoom: " + Math.round(zoomProperty.get() * 100) + "%"));
 		});
 
 		final BorderPane border = new BorderPane(scrollPane);
@@ -240,6 +267,18 @@ public class MainWindow extends Application {
 
 		final Scene scene = new Scene(border);
 		scene.getStylesheets().add(Paths.CSS);
+		scene.addEventHandler(KeyEvent.KEY_PRESSED, (key) -> {
+			if (key.getCode() == KeyCode.PLUS) {
+				System.out.println("You pressed plus");
+				zoomProperty.set(zoomProperty.get() * 1.1);
+			}
+		});
+		scene.addEventHandler(KeyEvent.KEY_PRESSED, (key) -> {
+			if (key.getCode() == KeyCode.MINUS) {
+				System.out.println("You pressed minus");
+                zoomProperty.set(zoomProperty.get() / 1.1);
+			}
+		});
 		primaryStage.setTitle(MetaInfo.TITLE);
 		primaryStage.setScene(scene);
 		primaryStage.setWidth(1200.0);

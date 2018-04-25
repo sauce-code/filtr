@@ -46,5 +46,7 @@ public interface Logic {
 	public void redo();
 
 	public void read(File file) throws IOException, IllegalImageFormatException;
+	
+	public void save(File file, String formatName) throws IOException;
 
 }
