@@ -1,35 +1,74 @@
 package com.saucecode.filtr.core;
 
+import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
+
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
 
-/**
- * Declares the functionality af any filter.
- *
- * @author Torben Kr&uuml;ger
- * @since 1.0.0
- */
-public interface Filter {
+public abstract class Filter {
 
-	/**
-	 * Returns the simple name of this filter.
-	 *
-	 * @return name of this filter
-	 * @since 1.0.0
-	 */
-	public String getName();
+	protected SimpleDoubleProperty progress;
 
-	/**
-	 * Filters a given image.
-	 *
-	 * @param image
-	 *            the image, which shall be filtered
-	 * @since 1.0.0
-	 */
-	public Image filter(Image image);
+	protected int threadCount;
 
-	public void setProgress(SimpleDoubleProperty progress);
+	public abstract String getName();
+	
+	public void setProgress(SimpleDoubleProperty progress) {
+		this.progress = progress;
+	}
 
-	public void setThreadCount(int threadCount);
+	public Image filter(Image image) {
+		progress.set(0.0);
+		final PixelReader pr = image.getPixelReader();
+		final WritableImage wi = new WritableImage((int) image.getWidth(), (int) image.getHeight());
+		final PixelWriter pw = wi.getPixelWriter();
+		if (Thread.currentThread().isInterrupted()) {
+			return image;
+		}
+		final CountDownLatch latch = new CountDownLatch(threadCount);
+		final ArrayList<Thread> threads = new ArrayList<>(threadCount);
+		for (int p = 0; p < threadCount; p++) {
+			final int current = (int) (image.getHeight() * p / threadCount);
+			final int next = (int) (image.getHeight() * (p + 1) / threadCount);
+			final int width = (int) image.getWidth();
+			final int height = (int) image.getHeight();
+			threads.add(new Thread(() -> {
+				System.out.println("filter child " + Thread.currentThread().getName() + " started");
+				for (int y = (current == 0 ? 1 : current); y < next - 1; y++) {
+					if (Thread.currentThread().isInterrupted()) {
+						break;
+					}
+					for (int x = 1; x < width - 1; x++) {
+						computePixel(x, y, pr, pw);
+					}
+					progress.set(progress.doubleValue() + 1.0 / height);
+
+				}
+				System.out.println("filter child " + Thread.currentThread().getName()
+						+ (Thread.currentThread().isInterrupted() ? " interrupted" : " ended"));
+				latch.countDown();
+			}));
+		}
+		threads.forEach(Thread::start);
+		try {
+			latch.await();
+		} catch (final InterruptedException e) {
+			System.out.println("filter parent " + Thread.currentThread().getName() + " interrupted");
+			threads.forEach(Thread::interrupt);
+			return image;
+		}
+		progress.set(1.0);
+		return wi;
+	}
+
+	protected abstract void computePixel(int x, int y, PixelReader pr, PixelWriter pw);
+
+	public void setThreadCount(int threadCount) {
+		this.threadCount = threadCount;
+	}
 
 }

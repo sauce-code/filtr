@@ -1,12 +1,12 @@
 package com.saucecode.filtr.core.filters;
 
-import com.saucecode.filtr.core.MultiThreadedFilter;
+import com.saucecode.filtr.core.Filter;
 
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.paint.Color;
 
-public class BlurFilterMulti extends MultiThreadedFilter {
+public class BlurFilterMulti extends Filter {
 
 	@Override
 	public String getName() {
