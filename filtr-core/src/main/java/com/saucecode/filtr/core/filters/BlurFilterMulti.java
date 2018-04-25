@@ -23,9 +23,13 @@ public class BlurFilterMulti extends Filter {
 	}
 
 	private double computeColor(int x, int y, PixelReader pr, Colors color) {
-		return getColor(x, y, pr, color) * 0.2 + getColor(x - 1, y, pr, color) * 0.2
-				+ getColor(x, y - 1, pr, color) * 0.2 + getColor(x + 1, y, pr, color) * 0.2
-				+ getColor(x, y + 1, pr, color) * 0.2;
+		// @formatter:off
+		return getColor(x    , y    , pr, color) * 0.2
+			 + getColor(x - 1, y    , pr, color) * 0.2
+			 + getColor(x    , y - 1, pr, color) * 0.2 
+			 + getColor(x + 1, y    , pr, color) * 0.2
+			 + getColor(x    , y + 1, pr, color) * 0.2;
+		// @formatter:on
 	}
 
 }
