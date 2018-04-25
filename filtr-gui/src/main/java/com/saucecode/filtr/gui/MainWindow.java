@@ -8,7 +8,7 @@ import java.util.List;
 import org.controlsfx.control.StatusBar;
 
 import com.saucecode.filtr.core.Imgur;
-import com.saucecode.filtr.core.filters.BlurFilterMulti;
+import com.saucecode.filtr.core.filters.BlurFilter;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
@@ -113,7 +113,7 @@ public class MainWindow extends Application {
 	}
 
 	private Menu initMenuFilters() {
-		final FilterMenuItem blurMulti = new FilterMenuItem(new BlurFilterMulti(), imgur);
+		final FilterMenuItem blurMulti = new FilterMenuItem(new BlurFilter(), imgur);
 
 		return new Menu("Fi_lters", null, blurMulti);
 	}

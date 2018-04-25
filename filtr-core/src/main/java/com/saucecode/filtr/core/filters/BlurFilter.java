@@ -6,7 +6,7 @@ import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.paint.Color;
 
-public class BlurFilterMulti extends Filter {
+public class BlurFilter extends Filter {
 
 	@Override
 	public String getName() {
