@@ -15,19 +15,36 @@ public class BlurFilterMulti extends MultiThreadedFilter {
 
 	@Override
 	protected void computePixel(int x, int y, PixelReader pr, PixelWriter pw) {
-		final double red = pr.getColor(x, y).getRed() * 0.2 + pr.getColor(x - 1, y).getRed() * 0.2
-				+ pr.getColor(x, y - 1).getRed() * 0.2 + pr.getColor(x + 1, y).getRed() * 0.2
-				+ pr.getColor(x, y + 1).getRed() * 0.2;
-		final double green = pr.getColor(x, y).getGreen() * 0.2 + pr.getColor(x - 1, y).getGreen() * 0.2
-				+ pr.getColor(x, y - 1).getGreen() * 0.2 + pr.getColor(x + 1, y).getGreen() * 0.2
-				+ pr.getColor(x, y + 1).getGreen() * 0.2;
-		final double blue = pr.getColor(x, y).getBlue() * 0.2 + pr.getColor(x - 1, y).getBlue() * 0.2
-				+ pr.getColor(x, y - 1).getBlue() * 0.2 + pr.getColor(x + 1, y).getBlue() * 0.2
-				+ pr.getColor(x, y + 1).getBlue() * 0.2;
-		final double opacity = pr.getColor(x, y).getOpacity() * 0.2 + pr.getColor(x - 1, y).getOpacity() * 0.2
-				+ pr.getColor(x, y - 1).getOpacity() * 0.2 + pr.getColor(x + 1, y).getOpacity() * 0.2
-				+ pr.getColor(x, y + 1).getOpacity() * 0.2;
+		final double red = computeColor(x, y, pr, Colors.RED);
+		final double green = computeColor(x, y, pr, Colors.GREEN);
+		final double blue = computeColor(x, y, pr, Colors.BLUE);
+		final double opacity = computeColor(x, y, pr, Colors.OPACITY);
 		pw.setColor(x, y, new Color(red, green, blue, opacity));
 	}
+
+	private double computeColor(int x, int y, PixelReader pr, Colors color) {
+		return getColor(x, y, pr, color) * 0.2 + getColor(x - 1, y, pr, color) * 0.2
+				+ getColor(x, y - 1, pr, color) * 0.2 + getColor(x + 1, y, pr, color) * 0.2
+				+ getColor(x, y + 1, pr, color) * 0.2;
+	}
+
+	protected double getColor(int x, int y, PixelReader pr, Colors color) {
+		switch (color) {
+		case RED:
+			return pr.getColor(x, y).getRed();
+		case GREEN:
+			return pr.getColor(x, y).getGreen();
+		case BLUE:
+			return pr.getColor(x, y).getBlue();
+		case OPACITY:
+			return pr.getColor(x, y).getOpacity();
+		default:
+			throw new InternalError();
+		}
+	}
+
+	protected enum Colors {
+		RED, GREEN, BLUE, OPACITY;
+	};
 
 }
