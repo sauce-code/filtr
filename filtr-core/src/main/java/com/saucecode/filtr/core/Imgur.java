@@ -8,6 +8,10 @@ import javax.imageio.ImageIO;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -27,9 +31,9 @@ public class Imgur implements Logic {
 	private final SimpleDoubleProperty progress = new SimpleDoubleProperty(0.0);
 
 	private final SimpleIntegerProperty threadCount = new SimpleIntegerProperty(MAX_THREAD_COUNT);
-	
+
 	private final SimpleBooleanProperty undoPossible = new SimpleBooleanProperty(false);
-	
+
 	private final SimpleBooleanProperty redoPossible = new SimpleBooleanProperty(false);
 
 	private Thread thread;
@@ -40,7 +44,7 @@ public class Imgur implements Logic {
 	}
 
 	@Override
-	public SimpleObjectProperty<Image> imageProperty() {
+	public ObjectProperty<Image> imageProperty() {
 		return image;
 	}
 
@@ -55,7 +59,7 @@ public class Imgur implements Logic {
 	}
 
 	@Override
-	public SimpleBooleanProperty busyProperty() {
+	public BooleanProperty busyProperty() {
 		return busy;
 	}
 
@@ -90,7 +94,7 @@ public class Imgur implements Logic {
 	}
 
 	@Override
-	public SimpleDoubleProperty progressProperty() {
+	public DoubleProperty progressProperty() {
 		return progress;
 	}
 
@@ -110,7 +114,7 @@ public class Imgur implements Logic {
 	}
 
 	@Override
-	public SimpleIntegerProperty threadCountProperty() {
+	public IntegerProperty threadCountProperty() {
 		return threadCount;
 	}
 
@@ -141,7 +145,7 @@ public class Imgur implements Logic {
 	}
 
 	@Override
-	public SimpleBooleanProperty undoPossibleProperty() {
+	public BooleanProperty undoPossibleProperty() {
 		return undoPossible;
 	}
 
@@ -158,7 +162,7 @@ public class Imgur implements Logic {
 	}
 
 	@Override
-	public SimpleBooleanProperty redoPossibleProperty() {
+	public BooleanProperty redoPossibleProperty() {
 		return redoPossible;
 	}
 

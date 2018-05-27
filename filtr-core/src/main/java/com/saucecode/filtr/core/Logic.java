@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.IOException;
 
 import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.scene.image.Image;
 
 public interface Logic {
@@ -22,23 +22,23 @@ public interface Logic {
 
 	public Image getImage();
 	
-	public SimpleObjectProperty<Image> imageProperty();
+	public ObjectProperty<Image> imageProperty();
 	
 	public void setImage(Image image);
 	
 	public boolean isBusy();
 
-	public SimpleBooleanProperty busyProperty();
+	public BooleanProperty busyProperty();
 
 	public void apply(Filter filter);
 	
 	public double getProgress();
 
-	public SimpleDoubleProperty progressProperty();
+	public DoubleProperty progressProperty();
 	
 	public int getThreadCount();
 	
-	public SimpleIntegerProperty threadCountProperty();
+	public IntegerProperty threadCountProperty();
 
 	public void setThreadCount(Integer threadCount);
 
@@ -50,13 +50,13 @@ public interface Logic {
 
 	public boolean isUndoPossible();
 	
-	public SimpleBooleanProperty undoPossibleProperty();
+	public BooleanProperty undoPossibleProperty();
 
 	public void undo();
 	
 	public boolean isRedoPossible();
 
-	public SimpleBooleanProperty redoPossibleProperty();
+	public BooleanProperty redoPossibleProperty();
 
 	public void redo();
 

@@ -246,9 +246,7 @@ public class MainWindow extends Application {
 
 		statusBar = new StatusBar();
 		statusBar.progressProperty().bind(imgur.progressProperty());
-//		imgur.progressProperty().addListener(e -> {
-//			Platform.runLater(() -> statusBar.setProgress(imgur.progressProperty().get()));
-//		});
+		
 		zoomProperty.addListener(e -> {
 			Platform.runLater(() -> statusBar.setText("zoom: " + Math.round(zoomProperty.get() * 100) + "%"));
 		});
