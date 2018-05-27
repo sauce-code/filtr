@@ -19,29 +19,43 @@ public interface Logic {
 
 	public static final int MAX_REDO_COUNT = 10;
 
-	public SimpleObjectProperty<Image> getImage();
-
+	public Image getImage();
+	
+	public SimpleObjectProperty<Image> imageProperty();
+	
 	public void setImage(Image image);
+	
+	public boolean isBusy();
 
-	public SimpleBooleanProperty isBusy();
+	public SimpleBooleanProperty busyProperty();
 
 	public void apply(Filter filter);
+	
+	public double getProgress();
 
-	public SimpleDoubleProperty getProgress();
-
-	public void interrupt();
-
-	public SimpleIntegerProperty getThreadCount();
+	public SimpleDoubleProperty progressProperty();
+	
+	public int getThreadCount();
+	
+	public SimpleIntegerProperty threadCountProperty();
 
 	public void setThreadCount(Integer threadCount);
 
-	public boolean isFilterApplyable();
+	public void interrupt();
 
-	public SimpleBooleanProperty isUndoPossible();
+	public boolean isFilterApplyable();
+	
+	public SimpleBooleanProperty FilterApplyableProperty();
+
+	public boolean isUndoPossible();
+	
+	public SimpleBooleanProperty undoPossibleProperty();
 
 	public void undo();
+	
+	public boolean isRedoPossible();
 
-	public SimpleBooleanProperty isRedoPossible();
+	public SimpleBooleanProperty redoPossibleProperty();
 
 	public void redo();
 

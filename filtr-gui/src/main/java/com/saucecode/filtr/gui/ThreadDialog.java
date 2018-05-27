@@ -24,7 +24,7 @@ public class ThreadDialog extends Dialog<Integer> {
 		final Slider slider = new Slider();
 		slider.setMin(Logic.MIN_THREAD_COUNT);
 		slider.setMax(Logic.MAX_THREAD_COUNT);
-		slider.setValue(logic.getThreadCount().get());
+		slider.setValue(logic.threadCountProperty().get());
 		slider.setShowTickLabels(true);
 		slider.setShowTickMarks(true);
 		slider.setMajorTickUnit(1);

@@ -27,7 +27,12 @@ public class Imgur implements Logic {
 	private Thread thread;
 
 	@Override
-	public SimpleObjectProperty<Image> getImage() {
+	public Image getImage() {
+		return image.get();
+	}
+
+	@Override
+	public SimpleObjectProperty<Image> imageProperty() {
 		return image;
 	}
 
@@ -37,7 +42,12 @@ public class Imgur implements Logic {
 	}
 
 	@Override
-	public SimpleBooleanProperty isBusy() {
+	public boolean isBusy() {
+		return busy.get();
+	}
+
+	@Override
+	public SimpleBooleanProperty busyProperty() {
 		return busy;
 	}
 
@@ -67,7 +77,12 @@ public class Imgur implements Logic {
 	}
 
 	@Override
-	public SimpleDoubleProperty getProgress() {
+	public double getProgress() {
+		return progress.get();
+	}
+
+	@Override
+	public SimpleDoubleProperty progressProperty() {
 		return progress;
 	}
 
@@ -82,7 +97,12 @@ public class Imgur implements Logic {
 	}
 
 	@Override
-	public SimpleIntegerProperty getThreadCount() {
+	public int getThreadCount() {
+		return threadCount.get();
+	}
+
+	@Override
+	public SimpleIntegerProperty threadCountProperty() {
 		return threadCount;
 	}
 
@@ -103,7 +123,19 @@ public class Imgur implements Logic {
 	}
 
 	@Override
-	public SimpleBooleanProperty isUndoPossible() {
+	public SimpleBooleanProperty FilterApplyableProperty() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isUndoPossible() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public SimpleBooleanProperty undoPossibleProperty() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -115,7 +147,13 @@ public class Imgur implements Logic {
 	}
 
 	@Override
-	public SimpleBooleanProperty isRedoPossible() {
+	public boolean isRedoPossible() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public SimpleBooleanProperty redoPossibleProperty() {
 		// TODO Auto-generated method stub
 		return null;
 	}

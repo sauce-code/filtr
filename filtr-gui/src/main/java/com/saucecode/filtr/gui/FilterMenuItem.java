@@ -12,12 +12,12 @@ public class FilterMenuItem extends MenuItem {
 		super(filter.getName());
 		setDisable(true);
 		setOnAction(e -> logic.apply(filter));
-		logic.isBusy().addListener(e -> Platform.runLater(() -> updateDisable(logic)));
-		logic.getImage().addListener(e -> Platform.runLater(() -> updateDisable(logic)));
+		logic.busyProperty().addListener(e -> Platform.runLater(() -> updateDisable(logic)));
+		logic.imageProperty().addListener(e -> Platform.runLater(() -> updateDisable(logic)));
 	}
 
 	private void updateDisable(Logic logic) {
-		setDisable(logic.isBusy().get() || logic.getImage().get() == null);
+		setDisable(logic.busyProperty().get() || logic.imageProperty().get() == null);
 	}
 
 }

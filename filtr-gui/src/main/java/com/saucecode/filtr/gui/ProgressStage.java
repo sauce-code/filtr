@@ -26,8 +26,8 @@ public class ProgressStage extends Stage {
 		final ProgressBar progress = new ProgressBar();
 		progress.setMinWidth(300.0);
 		progress.setMinHeight(30.0);
-		logic.getProgress().addListener(e -> Platform.runLater(() -> {
-			final double currentProgress = logic.getProgress().get();
+		logic.progressProperty().addListener(e -> Platform.runLater(() -> {
+			final double currentProgress = logic.progressProperty().get();
 			progress.setProgress(currentProgress);
 			setTitle((int) (currentProgress * 100) + "%");
 		}));
@@ -42,8 +42,8 @@ public class ProgressStage extends Stage {
 		
 		setScene(new Scene(vBox));
 		
-		logic.isBusy().addListener(e -> {
-			if (logic.isBusy().get()) {
+		logic.busyProperty().addListener(e -> {
+			if (logic.busyProperty().get()) {
 				Platform.runLater(() -> show());
 			} else {
 				Platform.runLater(() -> close());

@@ -139,7 +139,7 @@ public class MainWindow extends Application {
 		copy.setAccelerator(KeyCombination.keyCombination("Ctrl + C"));
 		copy.setOnAction(e -> {
 			final ClipboardContent content = new ClipboardContent();
-			content.putImage(imgur.getImage().get());
+			content.putImage(imgur.imageProperty().get());
 			clipboard.setContent(content);
 			final Alert alert = new Alert(AlertType.INFORMATION);
 			alert.setHeaderText(null);
@@ -222,16 +222,16 @@ public class MainWindow extends Application {
 		zoomProperty.addListener(new InvalidationListener() {
             @Override
             public void invalidated(Observable arg0) {
-                imageView.setFitWidth(imgur.getImage().get().widthProperty().get() * zoomProperty.get());
+                imageView.setFitWidth(imgur.imageProperty().get().widthProperty().get() * zoomProperty.get());
                 System.out.println(imageView.getFitWidth());
-                imageView.setFitHeight(imgur.getImage().get().heightProperty().get() * zoomProperty.get());
+                imageView.setFitHeight(imgur.imageProperty().get().heightProperty().get() * zoomProperty.get());
             }
         });
 		
 		new ProgressStage(imgur, logo);
 
-		imgur.getImage().addListener(e -> Platform.runLater(() -> {
-			imageView.setImage(imgur.getImage().get());
+		imgur.imageProperty().addListener(e -> Platform.runLater(() -> {
+			imageView.setImage(imgur.imageProperty().get());
 		}));
 
 		this.primaryStage = primaryStage;
@@ -251,8 +251,8 @@ public class MainWindow extends Application {
         });
 
 		statusBar = new StatusBar();
-		imgur.getProgress().addListener(e -> {
-			Platform.runLater(() -> statusBar.setProgress(imgur.getProgress().get()));
+		imgur.progressProperty().addListener(e -> {
+			Platform.runLater(() -> statusBar.setProgress(imgur.progressProperty().get()));
 		});
 		zoomProperty.addListener(e -> {
 			Platform.runLater(() -> statusBar.setText("zoom: " + Math.round(zoomProperty.get() * 100) + "%"));
