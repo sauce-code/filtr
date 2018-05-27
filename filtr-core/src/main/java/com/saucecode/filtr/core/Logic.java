@@ -3,6 +3,7 @@ package com.saucecode.filtr.core;
 import java.io.File;
 import java.io.IOException;
 
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -43,9 +44,9 @@ public interface Logic {
 
 	public void interrupt();
 
-	public boolean isFilterApplyable();
+	public boolean isModificationDisabled();
 	
-	public SimpleBooleanProperty FilterApplyableProperty();
+	public BooleanBinding modificationDisabledBinding();
 
 	public boolean isUndoPossible();
 	

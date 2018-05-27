@@ -6,6 +6,8 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -19,6 +21,8 @@ public class Imgur implements Logic {
 	private final SimpleObjectProperty<Image> image = new SimpleObjectProperty<>();
 
 	private final SimpleBooleanProperty busy = new SimpleBooleanProperty(false);
+
+	private final BooleanBinding modificationDisabled = Bindings.or(image.isNull(), busy);
 
 	private final SimpleDoubleProperty progress = new SimpleDoubleProperty(0.0);
 
@@ -53,7 +57,7 @@ public class Imgur implements Logic {
 
 	@Override
 	public void apply(Filter filter) {
-		if (image == null) {
+		if (image.isNull().get()) {
 			throw new IllegalStateException("There is no image, can't apply filter " + filter.getName());
 		}
 		if (busy.get()) {
@@ -118,14 +122,13 @@ public class Imgur implements Logic {
 	}
 
 	@Override
-	public boolean isFilterApplyable() {
-		return (image != null) && !busy.get();
+	public boolean isModificationDisabled() {
+		return modificationDisabled.get();
 	}
 
 	@Override
-	public SimpleBooleanProperty FilterApplyableProperty() {
-		// TODO Auto-generated method stub
-		return null;
+	public BooleanBinding modificationDisabledBinding() {
+		return modificationDisabled;
 	}
 
 	@Override
@@ -143,7 +146,7 @@ public class Imgur implements Logic {
 	@Override
 	public void undo() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -161,17 +164,17 @@ public class Imgur implements Logic {
 	@Override
 	public void redo() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void read(File file) throws IOException, IllegalImageFormatException {
-			final BufferedImage bufferedImage = ImageIO.read(file);
-			if (bufferedImage == null) {
-				throw new IllegalImageFormatException("The selected file is no valid image!");
-			} else {
-				setImage(SwingFXUtils.toFXImage(bufferedImage, null));
-			}
+		final BufferedImage bufferedImage = ImageIO.read(file);
+		if (bufferedImage == null) {
+			throw new IllegalImageFormatException("The selected file is no valid image!");
+		} else {
+			setImage(SwingFXUtils.toFXImage(bufferedImage, null));
+		}
 	}
 
 	@Override

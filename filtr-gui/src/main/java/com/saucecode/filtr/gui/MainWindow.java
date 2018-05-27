@@ -2,13 +2,12 @@ package com.saucecode.filtr.gui;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.controlsfx.control.StatusBar;
 
 import com.saucecode.filtr.core.Imgur;
 import com.saucecode.filtr.core.filters.BlurFilter;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
@@ -91,8 +90,6 @@ public class MainWindow extends Application {
 
 	private final Clipboard clipboard = Clipboard.getSystemClipboard();
 
-	private final List<MenuItem> taskMenuItems = new LinkedList<MenuItem>();
-
 	private Menu initMenuHelp() {
 		final MenuItem about = new MenuItem("A_bout");
 		about.setOnAction(e -> new AboutAlert(logo).showAndWait());
@@ -125,7 +122,7 @@ public class MainWindow extends Application {
 			// TODO
 		});
 		undo.setDisable(true);
-		taskMenuItems.add(undo);
+		undo.disableProperty().bind(imgur.modificationDisabledBinding());
 
 		redo = new MenuItem("_Redo", new ImageView(iconRedo));
 		redo.setAccelerator(KeyCombination.keyCombination("Ctrl + Y"));
@@ -133,7 +130,7 @@ public class MainWindow extends Application {
 			// TODO
 		});
 		redo.setDisable(true);
-		taskMenuItems.add(redo);
+		redo.disableProperty().bind(imgur.modificationDisabledBinding());
 
 		copy = new MenuItem("_Copy", new ImageView(iconCopy));
 		copy.setAccelerator(KeyCombination.keyCombination("Ctrl + C"));
@@ -146,7 +143,7 @@ public class MainWindow extends Application {
 			alert.setContentText("Image has been copied to clipboard.");
 			alert.showAndWait();
 		});
-		taskMenuItems.add(copy);
+		copy.disableProperty().bind(imgur.modificationDisabledBinding());
 
 		paste = new MenuItem("_Paste", new ImageView(iconPaste));
 		paste.setAccelerator(KeyCombination.keyCombination("Ctrl + V"));
@@ -155,7 +152,6 @@ public class MainWindow extends Application {
 				imgur.setImage(clipboard.getImage());
 			}
 		});
-		taskMenuItems.add(paste);
 
 		return new Menu("_Edit", null, undo, redo, new SeparatorMenuItem(), copy, paste);
 	}
@@ -178,7 +174,7 @@ public class MainWindow extends Application {
 				}
 			}
 		});
-		taskMenuItems.add(open);
+		open.disableProperty().bind(imgur.busyProperty());
 
 		saveAs = new MenuItem("Save _As...", new ImageView(iconSave));
 		saveAs.setOnAction(e -> {
@@ -194,7 +190,7 @@ public class MainWindow extends Application {
 				}
 			}
 		});
-		taskMenuItems.add(saveAs);
+		saveAs.disableProperty().bind(imgur.modificationDisabledBinding());
 
 		final MenuItem exit = new MenuItem("E_xit");
 		exit.setAccelerator(KeyCombination.keyCombination("Alt + F4"));
