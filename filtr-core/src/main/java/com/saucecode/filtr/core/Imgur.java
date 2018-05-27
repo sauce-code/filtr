@@ -27,6 +27,10 @@ public class Imgur implements Logic {
 	private final SimpleDoubleProperty progress = new SimpleDoubleProperty(0.0);
 
 	private final SimpleIntegerProperty threadCount = new SimpleIntegerProperty(MAX_THREAD_COUNT);
+	
+	private final SimpleBooleanProperty undoPossible = new SimpleBooleanProperty(false);
+	
+	private final SimpleBooleanProperty redoPossible = new SimpleBooleanProperty(false);
 
 	private Thread thread;
 
@@ -133,14 +137,12 @@ public class Imgur implements Logic {
 
 	@Override
 	public boolean isUndoPossible() {
-		// TODO Auto-generated method stub
-		return false;
+		return undoPossible.get();
 	}
 
 	@Override
 	public SimpleBooleanProperty undoPossibleProperty() {
-		// TODO Auto-generated method stub
-		return null;
+		return undoPossible;
 	}
 
 	@Override
@@ -152,13 +154,12 @@ public class Imgur implements Logic {
 	@Override
 	public boolean isRedoPossible() {
 		// TODO Auto-generated method stub
-		return false;
+		return redoPossible.get();
 	}
 
 	@Override
 	public SimpleBooleanProperty redoPossibleProperty() {
-		// TODO Auto-generated method stub
-		return null;
+		return redoPossible;
 	}
 
 	@Override
