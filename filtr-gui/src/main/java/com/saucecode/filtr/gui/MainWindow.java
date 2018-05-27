@@ -69,7 +69,7 @@ public class MainWindow extends Application {
 	private final Image iconPaste = new Image(Paths.ICON_PASTE);
 
 	private final Imgur imgur = new Imgur();
-	
+
 	private final DoubleProperty zoomProperty = new SimpleDoubleProperty(1.0);
 
 	private MenuItem undo;
@@ -122,7 +122,7 @@ public class MainWindow extends Application {
 			// TODO
 		});
 		undo.setDisable(true);
-		undo.disableProperty().bind(imgur.modificationDisabledBinding());
+		undo.disableProperty().bind(imgur.undoPossibleProperty().not());
 
 		redo = new MenuItem("_Redo", new ImageView(iconRedo));
 		redo.setAccelerator(KeyCombination.keyCombination("Ctrl + Y"));
@@ -130,7 +130,7 @@ public class MainWindow extends Application {
 			// TODO
 		});
 		redo.setDisable(true);
-		redo.disableProperty().bind(imgur.modificationDisabledBinding());
+		redo.disableProperty().bind(imgur.redoPossibleProperty().not());
 
 		copy = new MenuItem("_Copy", new ImageView(iconCopy));
 		copy.setAccelerator(KeyCombination.keyCombination("Ctrl + C"));
@@ -152,6 +152,7 @@ public class MainWindow extends Application {
 				imgur.setImage(clipboard.getImage());
 			}
 		});
+		paste.setDisable(!clipboard.hasImage());
 
 		return new Menu("_Edit", null, undo, redo, new SeparatorMenuItem(), copy, paste);
 	}
@@ -208,7 +209,6 @@ public class MainWindow extends Application {
 		final MenuBar menuBar = new MenuBar(initMenuFile(), initMenuEdit(), initMenuFilters(), initSettingsMenu(),
 				initMenuHelp());
 		menuBar.setUseSystemMenuBar(true);
-		menuBar.useSystemMenuBarProperty().set(true);
 		return menuBar;
 	}
 
@@ -216,40 +216,39 @@ public class MainWindow extends Application {
 	public void start(Stage primaryStage) throws Exception {
 
 		zoomProperty.addListener(new InvalidationListener() {
-            @Override
-            public void invalidated(Observable arg0) {
-                imageView.setFitWidth(imgur.imageProperty().get().widthProperty().get() * zoomProperty.get());
-                System.out.println(imageView.getFitWidth());
-                imageView.setFitHeight(imgur.imageProperty().get().heightProperty().get() * zoomProperty.get());
-            }
-        });
-		
-		new ProgressStage(imgur, logo);
+			@Override
+			public void invalidated(Observable arg0) {
+				imageView.setFitWidth(imgur.imageProperty().get().widthProperty().get() * zoomProperty.get());
+				System.out.println(imageView.getFitWidth());
+				imageView.setFitHeight(imgur.imageProperty().get().heightProperty().get() * zoomProperty.get());
+			}
+		});
 
-		imgur.imageProperty().addListener(e -> Platform.runLater(() -> {
-			imageView.setImage(imgur.imageProperty().get());
-		}));
+		new ProgressStage(imgur, logo);
 
 		this.primaryStage = primaryStage;
 
 		imageView = new ImageView();
+		imageView.imageProperty().bind(imgur.imageProperty());
+		
 		final ScrollPane scrollPane = new ScrollPane(imageView);
 		scrollPane.setPannable(true);
 		scrollPane.addEventFilter(ScrollEvent.ANY, new EventHandler<ScrollEvent>() {
-            @Override
-            public void handle(ScrollEvent event) {
-                if (event.getDeltaY() > 0) {
-                    zoomProperty.set(zoomProperty.get() * 1.1);
-                } else if (event.getDeltaY() < 0) {
-                    zoomProperty.set(zoomProperty.get() / 1.1);
-                }
-            }
-        });
+			@Override
+			public void handle(ScrollEvent event) {
+				if (event.getDeltaY() > 0) {
+					zoomProperty.set(zoomProperty.get() * 1.1);
+				} else if (event.getDeltaY() < 0) {
+					zoomProperty.set(zoomProperty.get() / 1.1);
+				}
+			}
+		});
 
 		statusBar = new StatusBar();
-		imgur.progressProperty().addListener(e -> {
-			Platform.runLater(() -> statusBar.setProgress(imgur.progressProperty().get()));
-		});
+		statusBar.progressProperty().bind(imgur.progressProperty());
+//		imgur.progressProperty().addListener(e -> {
+//			Platform.runLater(() -> statusBar.setProgress(imgur.progressProperty().get()));
+//		});
 		zoomProperty.addListener(e -> {
 			Platform.runLater(() -> statusBar.setText("zoom: " + Math.round(zoomProperty.get() * 100) + "%"));
 		});
@@ -269,7 +268,7 @@ public class MainWindow extends Application {
 		scene.addEventHandler(KeyEvent.KEY_PRESSED, (key) -> {
 			if (key.getCode() == KeyCode.MINUS) {
 				System.out.println("You pressed minus");
-                zoomProperty.set(zoomProperty.get() / 1.1);
+				zoomProperty.set(zoomProperty.get() / 1.1);
 			}
 		});
 		primaryStage.setTitle(MetaInfo.TITLE);

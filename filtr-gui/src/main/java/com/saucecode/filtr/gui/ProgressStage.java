@@ -14,34 +14,33 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 public class ProgressStage extends Stage {
-	
+
 	public ProgressStage(Logic logic, Image logo) {
-		
+
 		super(StageStyle.DECORATED);
 		getIcons().add(logo);
 		initModality(Modality.APPLICATION_MODAL);
 		setResizable(false);
 		setOnCloseRequest(e -> logic.interrupt());
-		
+
 		final ProgressBar progress = new ProgressBar();
 		progress.setMinWidth(300.0);
 		progress.setMinHeight(30.0);
+		progress.progressProperty().bind(logic.progressProperty());
 		logic.progressProperty().addListener(e -> Platform.runLater(() -> {
-			final double currentProgress = logic.progressProperty().get();
-			progress.setProgress(currentProgress);
-			setTitle((int) (currentProgress * 100) + "%");
+			setTitle((int) (logic.progressProperty().get() * 100) + "%");
 		}));
 
 		final Button cancel = new Button("Cancel");
 		cancel.setOnAction(e -> {
 			logic.interrupt();
 		});
-		
+
 		final VBox vBox = new VBox(progress, cancel);
 		vBox.setAlignment(Pos.CENTER);
-		
+
 		setScene(new Scene(vBox));
-		
+
 		logic.busyProperty().addListener(e -> {
 			if (logic.busyProperty().get()) {
 				Platform.runLater(() -> show());
@@ -49,7 +48,7 @@ public class ProgressStage extends Stage {
 				Platform.runLater(() -> close());
 			}
 		});
-		
+
 	}
 
 }

@@ -46,7 +46,7 @@ public class Imgur implements Logic {
 
 	@Override
 	public void setImage(Image image) {
-		this.image.set(image);
+		this.image.set(image); // TODO public? sollte eig gar nicht im interface vorhanden sein?
 	}
 
 	@Override
