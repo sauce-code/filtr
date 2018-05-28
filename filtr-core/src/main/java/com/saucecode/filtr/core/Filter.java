@@ -3,22 +3,28 @@ package com.saucecode.filtr.core;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
-import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.DoubleProperty;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 
 public abstract class Filter {
-
-	protected SimpleDoubleProperty progress;
-
-	protected int threadCount;
-
-	public abstract String getName();
 	
-	public void setProgress(SimpleDoubleProperty progress) {
+	protected final String name;
+
+	protected final DoubleProperty progress;
+
+	protected final int threadCount;
+	
+	protected Filter(String name, DoubleProperty progress, int threadCount) {
+		this.name = name;
 		this.progress = progress;
+		this.threadCount = threadCount;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	public Image filter(Image image) {
@@ -26,9 +32,6 @@ public abstract class Filter {
 		final PixelReader pr = image.getPixelReader();
 		final WritableImage wi = new WritableImage((int) image.getWidth(), (int) image.getHeight());
 		final PixelWriter pw = wi.getPixelWriter();
-		if (Thread.currentThread().isInterrupted()) {
-			return image;
-		}
 		final CountDownLatch latch = new CountDownLatch(threadCount);
 		final ArrayList<Thread> threads = new ArrayList<>(threadCount);
 		for (int p = 0; p < threadCount; p++) {
@@ -66,10 +69,6 @@ public abstract class Filter {
 	}
 
 	protected abstract void computePixel(int x, int y, PixelReader pr, PixelWriter pw);
-
-	public void setThreadCount(int threadCount) {
-		this.threadCount = threadCount;
-	}
 	
 	protected double getColor(int x, int y, PixelReader pr, Colors color) {
 		switch (color) {

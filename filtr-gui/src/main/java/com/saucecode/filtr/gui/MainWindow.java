@@ -2,11 +2,14 @@ package com.saucecode.filtr.gui;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 import org.controlsfx.control.StatusBar;
 
 import com.saucecode.filtr.core.Imgur;
 import com.saucecode.filtr.core.filters.BlurFilter;
+import com.saucecode.filtr.core.filters.BlurFilterExtended;
+import com.saucecode.filtr.core.filters.BlurFilterExtended.Settings;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -72,6 +75,8 @@ public class MainWindow extends Application {
 
 	private final DoubleProperty zoomProperty = new SimpleDoubleProperty(1.0);
 
+	private final Clipboard clipboard = Clipboard.getSystemClipboard();
+
 	private MenuItem undo;
 
 	private MenuItem redo;
@@ -87,8 +92,6 @@ public class MainWindow extends Application {
 	private MenuItem copy;
 
 	private MenuItem paste;
-
-	private final Clipboard clipboard = Clipboard.getSystemClipboard();
 
 	private Menu initMenuHelp() {
 		final MenuItem about = new MenuItem("A_bout");
@@ -110,9 +113,19 @@ public class MainWindow extends Application {
 	}
 
 	private Menu initMenuFilters() {
-		final FilterMenuItem blurMulti = new FilterMenuItem(new BlurFilter(), imgur);
+		final FilterMenuItem blurMulti = new FilterMenuItem(new BlurFilter(imgur), imgur);
 
-		return new Menu("Fi_lters", null, blurMulti);
+		final MenuItem blurExtended = new MenuItem("Blur extended");
+		blurExtended.setOnAction(e -> {
+			Optional<BlurFilterExtended.Settings> settings = new BlurFilterExtendedDialog(imgur, logo).showAndWait();
+			if (settings.isPresent()) {
+				BlurFilterExtended filter = new BlurFilterExtended(imgur, settings.get());
+				imgur.apply(filter);
+			}
+		});
+		blurExtended.disableProperty().bind(imgur.modificationDisabledBinding());
+
+		return new Menu("Fi_lters", null, blurMulti, blurExtended);
 	}
 
 	private Menu initMenuEdit() {
@@ -215,13 +228,10 @@ public class MainWindow extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 
-		zoomProperty.addListener(new InvalidationListener() {
-			@Override
-			public void invalidated(Observable arg0) {
-				imageView.setFitWidth(imgur.imageProperty().get().widthProperty().get() * zoomProperty.get());
-				System.out.println(imageView.getFitWidth());
-				imageView.setFitHeight(imgur.imageProperty().get().heightProperty().get() * zoomProperty.get());
-			}
+		zoomProperty.addListener(e -> {
+			imageView.setFitWidth(imgur.imageProperty().get().widthProperty().get() * zoomProperty.get());
+			System.out.println(imageView.getFitWidth());
+			imageView.setFitHeight(imgur.imageProperty().get().heightProperty().get() * zoomProperty.get());
 		});
 
 		new ProgressStage(imgur, logo);
@@ -230,7 +240,7 @@ public class MainWindow extends Application {
 
 		imageView = new ImageView();
 		imageView.imageProperty().bind(imgur.imageProperty());
-		
+
 		final ScrollPane scrollPane = new ScrollPane(imageView);
 		scrollPane.setPannable(true);
 		scrollPane.addEventFilter(ScrollEvent.ANY, new EventHandler<ScrollEvent>() {
@@ -246,7 +256,7 @@ public class MainWindow extends Application {
 
 		statusBar = new StatusBar();
 		statusBar.progressProperty().bind(imgur.progressProperty());
-		
+
 		zoomProperty.addListener(e -> {
 			Platform.runLater(() -> statusBar.setText("zoom: " + Math.round(zoomProperty.get() * 100) + "%"));
 		});

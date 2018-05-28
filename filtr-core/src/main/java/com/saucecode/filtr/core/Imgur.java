@@ -65,14 +65,6 @@ public class Imgur implements Logic {
 
 	@Override
 	public void apply(Filter filter) {
-		// if (image.isNull().get()) {
-		// throw new IllegalStateException("There is no image, can't apply filter " +
-		// filter.getName());
-		// }
-		// if (busy.get()) {
-		// throw new IllegalStateException("Busy right now, can't apply filter " +
-		// filter.getName());
-		// }
 		if (modificationDisabled.get()) {
 			throw new IllegalStateException("modification currently disabled, can't apply filter " + filter.getName());
 		}
@@ -80,8 +72,6 @@ public class Imgur implements Logic {
 			throw new IllegalArgumentException("filter must not be null");
 		}
 		busy.set(true);
-		filter.setProgress(progress);
-		filter.setThreadCount(threadCount.get());
 		final Task<Void> task = new Task<Void>() {
 			@Override
 			protected Void call() throws Exception {
