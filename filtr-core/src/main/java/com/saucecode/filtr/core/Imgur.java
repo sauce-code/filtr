@@ -50,7 +50,7 @@ public class Imgur implements Logic {
 
 	@Override
 	public void setImage(Image image) {
-		this.image.set(image); // TODO public? sollte eig gar nicht im interface vorhanden sein?
+		this.image.set(image);
 	}
 
 	@Override
@@ -65,11 +65,19 @@ public class Imgur implements Logic {
 
 	@Override
 	public void apply(Filter filter) {
-		if (image.isNull().get()) {
-			throw new IllegalStateException("There is no image, can't apply filter " + filter.getName());
+		// if (image.isNull().get()) {
+		// throw new IllegalStateException("There is no image, can't apply filter " +
+		// filter.getName());
+		// }
+		// if (busy.get()) {
+		// throw new IllegalStateException("Busy right now, can't apply filter " +
+		// filter.getName());
+		// }
+		if (modificationDisabled.get()) {
+			throw new IllegalStateException("modification currently disabled, can't apply filter " + filter.getName());
 		}
-		if (busy.get()) {
-			throw new IllegalStateException("Busy right now, can't apply filter " + filter.getName());
+		if (filter == null) {
+			throw new IllegalArgumentException("filter must not be null");
 		}
 		busy.set(true);
 		filter.setProgress(progress);
@@ -151,13 +159,15 @@ public class Imgur implements Logic {
 
 	@Override
 	public void undo() {
+		if (!undoPossible.get()) {
+			throw new IllegalStateException("no undo possible right now");
+		}
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public boolean isRedoPossible() {
-		// TODO Auto-generated method stub
 		return redoPossible.get();
 	}
 
@@ -168,12 +178,17 @@ public class Imgur implements Logic {
 
 	@Override
 	public void redo() {
+		if (!redoPossible.get()) {
+			throw new IllegalStateException("no redo possible right now");
+		}
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void read(File file) throws IOException, IllegalImageFormatException {
+		if (file == null) {
+			throw new IllegalArgumentException("file must not be null");
+		}
 		final BufferedImage bufferedImage = ImageIO.read(file);
 		if (bufferedImage == null) {
 			throw new IllegalImageFormatException("The selected file is no valid image!");
@@ -184,6 +199,9 @@ public class Imgur implements Logic {
 
 	@Override
 	public void save(File file, String formatName) throws IOException {
+		if (file == null) {
+			throw new IllegalArgumentException("file must not be null");
+		}
 		final BufferedImage temp = SwingFXUtils.fromFXImage(image.get(), null);
 		ImageIO.write(temp, formatName, file);
 	}

@@ -119,7 +119,7 @@ public class MainWindow extends Application {
 		undo = new MenuItem("_Undo", new ImageView(iconUndo));
 		undo.setAccelerator(KeyCombination.keyCombination("Ctrl + Z"));
 		undo.setOnAction(e -> {
-			// TODO
+			imgur.undo();
 		});
 		undo.setDisable(true);
 		undo.disableProperty().bind(imgur.undoPossibleProperty().not());
@@ -127,7 +127,7 @@ public class MainWindow extends Application {
 		redo = new MenuItem("_Redo", new ImageView(iconRedo));
 		redo.setAccelerator(KeyCombination.keyCombination("Ctrl + Y"));
 		redo.setOnAction(e -> {
-			// TODO
+			imgur.undo();
 		});
 		redo.setDisable(true);
 		redo.disableProperty().bind(imgur.redoPossibleProperty().not());
